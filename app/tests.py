@@ -54,11 +54,7 @@ class TestPersons(unittest.TestCase):
             test_fellow = Dojo()
             test_fellow.add_new_member("Fellow", "Jonathan Swift")
     
-    def test_no_staff_can_receive_living_space(self):
-        with self.assertRaises(ValueError):
-            test_fellow = Dojo()
-            test_fellow.add_new_member("Staff", "Jonati Rambo", "Y")
-                        
+                    
 
 if __name__ == "__main__":
     unittest.main()

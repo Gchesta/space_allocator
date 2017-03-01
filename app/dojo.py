@@ -39,11 +39,13 @@ class Dojo:
 			
 					new_office = Office(self.room_name)
 					self.offices[str(new_office)] = new_office.residents
+					print("An office called " + self.room_name + " has been successfully created!")
 
 				else:
 					
 					new_living_space = LivingSpace(self.room_name)
 					self.living_spaces[str(new_living_space)] = new_living_space.residents
+					print("A living space called " + self.room_name + " has been successfully created!")
 
 	def add_new_member(self, person_category, person_name, wants_accomodation="N"):
 		"""Add a new member to the Dojo"""
@@ -75,6 +77,10 @@ class Dojo:
 				self.fellows.append(str(new_fellow))
 				self.offices[allocated_office]['Fellows'].append(str(new_fellow))
 				self.living_spaces[allocated_living_space].append(str(new_fellow))
+				print("Fellow " + self.person_name + " has been successfully added!")
+				print(self.person_name + " has been allocated the " + allocated_office + " office")
+				print(self.person_name + " has been allocated the " + allocated_living_space + " living space")
+				
 
 			else:
 
@@ -82,8 +88,10 @@ class Dojo:
 				allocated_office = choice([key for key, value in self.offices.items()])
 				self.staff.append(str(new_staff))
 				self.offices[allocated_office]['Staff'].append(str(new_staff))
+				print("Staff " + self.person_name + " has been successfully added!")
+				print(self.person_name + " has been allocated the " + allocated_office + " office")
 				print("Living Spaces are only available for fellows. No room was allocated to " + self.person_name)
-				raise ValueError
+				
 
 		else:
 
@@ -94,6 +102,8 @@ class Dojo:
 				allocated_office = choice([key for key, value in self.offices.items()])
 				self.fellows.append(str(new_fellow))
 				self.offices[allocated_office]['Fellows'].append(str(new_fellow))
+				print("Fellow " + self.person_name + " has been successfully added!")
+				print(self.person_name + " has been allocated the " + allocated_office + " office")
 				
 			else:
 
@@ -101,6 +111,8 @@ class Dojo:
 				allocated_office = choice([key for key, value in self.offices.items()])
 				self.staff.append(str(new_staff))
 				self.offices[allocated_office]['Staff'].append(str(new_staff))
+				print("Staff " + self.person_name + " has been successfully added!")
+				print(self.person_name + " has been allocated the " + allocated_office + " office")
 								
 
 
