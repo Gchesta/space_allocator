@@ -1,5 +1,5 @@
 import unittest
-from dojo import  Dojo
+from app.dojo import  Dojo
 
 class TestRooms(unittest.TestCase):
 

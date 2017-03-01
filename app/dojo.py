@@ -95,7 +95,7 @@ class Dojo:
 
 		else:
 
-		#offices to Staff and to Fellows who don't want accomodation"""
+		#allocate offices to Staff and to Fellows who don't want accomodation"""
 			if self.person_category == "Fellow":
 				
 				new_fellow = Fellow(self.person_name)
