@@ -1,141 +1,109 @@
-from room import LivingSpace, Office
-from person import Fellow, Staff
+from .room import LivingSpace, Office
+from .person import Fellow, Staff
 from random import choice
 
+
 class Dojo:
-	"""
-	A class that contains the methods to create a new room and to add new people to the 
-	Dojo. 
+    """
+    A class that contains the methods to create a new room and to add new people to the
+    Dojo.
 
-	"""
+    """
 
-	def __init__(self):
+    def __init__(self):
+        self.livingspaces = []
+        self.offices = []
+        self.fellows = []
+        self.staff = []
 
-		self.living_spaces = {"Amugune": ["Jonathan Swift", "Tom Jones"]}
-		self.offices = {"Saitoti": { "Fellows":["Jonathan Swift", "Tom Jones"], "Staff":[]}, "Sahari": {"Staff":["William Jakoyo", "Franklin Barasa"], "Fellows":[]} }
-		self.fellows = ["Jonathan Swift", "Tom Jones"]
-		self.staff = ["William Jakoyo", "Franklin Barasa"]
+    def create_room(self, args):
+        """Create a new room."""
 
-	def create_room(self, room_type, room_name_list):
-		"""Create a new room."""
+        for room in args["<room_name>"]:
+            
+            added_room = room.capitalize()
+            check_in_offices = added_room in [existing_room.room_name for existing_room in self.offices]
+            check_in_livingspaces = added_room in [existing_room.room_name for existing_room in self.livingspaces]
 
-		self.room_type = room_type
+            rooms_not_added = []
+            rooms_added = []
 
-		if self.room_type not in ["Office", "Living-space"]:
-			print("The Dojo doesn't have the room type you've entred")
+            if check_in_offices or check_in_livingspaces:
+                room.reason = "Name already exists"
+                rooms_not_added.append(room)
 
-		else:
-			
-			for room_name in room_name_list:
-				self.room_name = room_name
+            elif not room.isalpha():
+                reason = "Contains non-alphabetic characters"
+                rooms_not_added.append((added_room, reason))
 
-				"""Check whether the room already exists"""
-				if self.room_name in self.offices or self.room_name in self.living_spaces:
-					print("There is already a room with the name " + self.room_name + ". Please try again")
-					raise ValueError
-				
-				elif self.room_type == "Office":
-					"""Create room if it doesn't exists"""
-			
-					new_office = Office(self.room_name)
-					self.offices[str(new_office)] = new_office.residents
-					print("An office called " + self.room_name + " has been successfully created!")
-
-				else:
-					
-					new_living_space = LivingSpace(self.room_name)
-					self.living_spaces[str(new_living_space)] = new_living_space.residents
-					print("A living space called " + self.room_name + " has been successfully created!")
-
-	def add_new_member(self, person_category, person_name, wants_accomodation="N"):
-		"""Add a new member to the Dojo"""
-
-		self.person_name = person_name
-		self.person_category = person_category
-		self.wants_accomodation = wants_accomodation
-
-		"""Check if the person already exists"""
-		if self.person_name in self.fellows or self.person_name in self.staff:
-
-			print("There is already a person with with the name " + self.person_name + ". Please try again")
-			raise ValueError
-
-		
-		elif self.person_category not in ["Staff", "Fellow"]:
-			"""Check if the category is valid"""
-
-			print("The Dojo doesn't have the membership you've entred")
-
-		
-		elif self.wants_accomodation == "Y":
-		#Allocate accomodation to Fellows only and offices to Fellows and Staff
-			if self.person_category == "Fellow":
-				
-				new_fellow = Fellow(self.person_name)
-				allocated_office = choice([key for key, value in self.offices.items()])
-				allocated_living_space = choice([key for key, value in self.living_spaces.items()])
-				self.fellows.append(str(new_fellow))
-				self.offices[allocated_office]['Fellows'].append(str(new_fellow))
-				self.living_spaces[allocated_living_space].append(str(new_fellow))
-				print("Fellow " + self.person_name + " has been successfully added!")
-				print(self.person_name + " has been allocated the " + allocated_office + " office")
-				print(self.person_name + " has been allocated the " + allocated_living_space + " living space")
-				
-
-			else:
-
-				new_staff = Staff(self.person_name)
-				allocated_office = choice([key for key, value in self.offices.items()])
-				self.staff.append(str(new_staff))
-				self.offices[allocated_office]['Staff'].append(str(new_staff))
-				print("Staff " + self.person_name + " has been successfully added!")
-				print(self.person_name + " has been allocated the " + allocated_office + " office")
-				print("Living Spaces are only available for fellows. No room was allocated to " + self.person_name)
-				
-
-		else:
-
-		#allocate offices to Staff and to Fellows who don't want accomodation"""
-			if self.person_category == "Fellow":
-				
-				new_fellow = Fellow(self.person_name)
-				allocated_office = choice([key for key, value in self.offices.items()])
-				self.fellows.append(str(new_fellow))
-				self.offices[allocated_office]['Fellows'].append(str(new_fellow))
-				print("Fellow " + self.person_name + " has been successfully added!")
-				print(self.person_name + " has been allocated the " + allocated_office + " office")
-				
-			else:
-
-				new_staff = Staff(self.person_name)
-				allocated_office = choice([key for key, value in self.offices.items()])
-				self.staff.append(str(new_staff))
-				self.offices[allocated_office]['Staff'].append(str(new_staff))
-				print("Staff " + self.person_name + " has been successfully added!")
-				print(self.person_name + " has been allocated the " + allocated_office + " office")
-								
+            elif args["<type_of_room>"].lower() == "office":
+                new_office = Office(added_room)
+                date_created = new_office.date_created
+                rooms_added.append(new_office)
+                self.offices.append(new_office)
 
 
+            else:
+                new_livingspace = LivingSpace(added_room)
+                room_type = "Livingspace"
+                date_created = new_livingspace.date_created
+                rooms_added.append(new_office)
+                self.livingspaces.append(new_livingspace)
 
-       
+        print(rooms_added)
+        if rooms_added:
+            print(" ")
+            print("The following rooms have been added to the Dojo:\n")
+            for room_added in rooms_added:
+                print("Room: " + room_added.room_name)
+                print("    Type        : " + type(room_added))
+                print("    Date Created: " + room_added.date_created)
 
+        if rooms_not_added:
+            print("The following rooms have not been added to the Dojo:")
+            for room_added in rooms_added:
+                print("Room: " + added_room)
+                print("    Reason:" + reason)
+                
 
-"""dojo = Dojo()
-dojo.create_room("Living-space", ["Chetambe"])
-dojo.create_room("Office", ["Harambee", "Nyayo"])
-dojo.create_room("Office", ["Harambee", "Nyayo"])
-print(dojo.offices)
-print(dojo.living_spaces)
-dojo.add_new_member("Fellow", "George wekesa")
-dojo.add_new_member("Staff", "Wawire Nyongesa")
-dojo.add_new_member("Staff", "Wawire Nyongesa")
-print(dojo.fellows)
-print(type(dojo.staff[2]))
-print(dojo.offices)"""
+    def add_person(self, args):
+        """Add a new member to the Dojo"""
 
-	
-	
-	
+        full_name_split = args["<person_name>"].title().split(" ")
 
+        if not "".join(full_name_split).isalpha():
+            return "Names must be made up entirely of letters"
 
+        first_name = full_name_split[0]
+        other_names = " ".join(full_name_split[1:])
+        full_name = first_name + " " + other_names
 
+        check_in_fellows = full_name in [
+            existing_person.full_name for existing_person in self.fellows]
+        check_in_staff = full_name in [
+            existing_person.full_name for existing_person in self.staff]
+
+        if check_in_fellows or check_in_staff:
+            return "There is already a person with the name " + full_name + ". Please try again"
+
+        allocated_office = choice(self.offices)
+        allocated_living_space = choice(self.livingspaces)
+
+        if args["FELLOW"]:
+            accomodation = allocated_living_space if args[
+                "wants_accomodation"] == "Y" else "NONE"
+            new_fellow = Fellow(first_name, other_names,
+                                accomodation, allocated_office)
+            self.fellows.append(new_fellow)
+            allocated_office.occupants.append(new_fellow)
+
+            if accomodation != "NONE":
+                allocated_living_space.append(new_fellow)
+                allocated_living_space.occupants(new_fellow)
+
+        elif args["STAFF"]:
+            accomodation = "NONE"
+            new_staff = Staff(first_name, other_names,
+                              accomodation, allocated_office)
+            self.staff.append(new_staff)
+            allocated_office.occupants.append(new_staff)

@@ -1,24 +1,29 @@
 class Person:
-	"""An overal class for person"""
+	"""An overall class for person"""
 
-	def __init__(self, person_name):
+	def __init__(self, first_name, other_names, living_place, office):
 
-		self.person_name = person_name
+		self.first_name = first_name
+		self.other_names = other_names
+		self.full_name = first_name + " " + other_names
+		self.living_place = living_place
+		self.office = office
 
 	def __repr__(self):
- 		return self.person_name
+		
+ 		return self.full_name
 
 
 class Fellow(Person):
 	"""A class for fellows"""
 
-	def __init__(self, person_name):
-		super().__init__(person_name)
+	def __init__(self, *args, **kwargs):
+		super().__init__(*args, **kwargs)
 
 
 class Staff(Person):
 	""""A class for staff"""
 
-	def __init__(self, person_name):
-		super().__init__(person_name)
+	def __init__(self, *args, **kwargs):
+		super().__init__(*args, **kwargs)
 	
