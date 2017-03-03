@@ -18,6 +18,8 @@ class Dojo:
         self.offices = []
         self.fellows = []
         self.staff = []
+        self.available_offices = []
+        self.available_livingspaces = []
 
     def create_room(self, args):
         """Create a new room."""
@@ -43,12 +45,14 @@ class Dojo:
                 new_office = Office(room_to_add)
                 rooms_added.append({"Room": new_office.room_name, "Type": "Office", "Date Created": new_office.date_created})
                 self.offices.append(new_office)
+                self.available_offices.append(new_office)
 
             elif args["<type_of_room>"].lower() == "livingspace":
                 new_livingspace = LivingSpace(room_to_add)
                 room_type = "Livingspace"
                 rooms_added.append({"Room": new_livingspace.room_name, "Type": "Livingspace", "Date Created": new_livingspace.date_created})
                 self.livingspaces.append(new_livingspace)
+                self.available_livingspaces.append(new_livingspace)
 
             else:
                 cprint("\nThe Dojo doesn't have that room type", "yellow")
@@ -103,30 +107,43 @@ class Dojo:
             return "There is already a person with that name" 
 
         try:
-            allocated_office = choice(self.offices)
-            allocated_living_space = choice(self.livingspaces)
+            allocated_office = choice(self.available_offices)
+            
         except IndexError:
-            cprint("\nThe Dojo lacks at least on room type", "yellow")
-            cprint("Please add a Livingspace and/or an office\n", "yellow")
+            cprint("\nThe Dojo lacks an available office", "yellow")
+            cprint("Please add an office and then add a person\n", "yellow")
+            return
+
+        try:
+            allocated_livingspace = choice(self.available_livingspaces)
+        except IndexError:
+            cprint("\nThe Dojo lacks an available livingspace", "yellow")
+            cprint("Please add a Livingspace and then add a person\n", "yellow")
             return
 
         if args["fellow"]:
-            accomodation = allocated_living_space if args["<wants_accomodation>"] == "Y" else "NONE"
+            accomodation = allocated_livingspace if args["<wants_accomodation>"] == "Y" else "NONE"
             new_fellow = Fellow(full_name, accomodation, allocated_office)
             self.fellows.append(new_fellow)
             allocated_office.occupants.append(new_fellow)
+            if len(allocated_office.occupants) == allocated_office.capacity:
+                self.available_offices.remove(allocated_office)
             cprint("\nFellow " + new_fellow.full_name + " has been added to the Dojo:", "green")
             cprint(new_fellow.full_name + " will occupy office " + allocated_office.room_name + "\n", "green")
 
             if accomodation != "NONE":
-                allocated_living_space.occupants.append(new_fellow)
-                cprint(new_fellow.full_name + " will reside in " + allocated_living_space.room_name + "\n", "green")
+                allocated_livingspace.occupants.append(new_fellow)
+                if len(allocated_livingspace.occupants) == allocated_livingspace.capacity:
+                    self.available_livingspaces.remove(allocated_livingspace)
+                cprint(new_fellow.full_name + " will reside in " + allocated_livingspace.room_name + "\n", "green")
 
         elif args["staff"]:
             accomodation = "NONE"
             new_staff = Staff(full_name, allocated_office)
             self.staff.append(new_staff)
             allocated_office.occupants.append(new_staff)
+            if len(allocated_office.occupants) == allocated_office.capacity:
+                self.available_offices.remove(allocated_office)
             cprint("\nStaff " + new_staff.full_name + " has been added to the Dojo:", "green")
             cprint(new_staff.full_name + " will occupy office " + allocated_office.room_name + "\n", "green")
 

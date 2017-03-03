@@ -15,11 +15,14 @@ class Room:
 class Office(Room):
  	"""A class for Office which inherits from Room"""
  	def __init__(self, args):
+ 		self.capacity = 4
+
  		super().__init__(args)
 
 class LivingSpace(Room):
  	"""A class for LivingSace which inherits from Room"""
  	def __init__(self, args):
+ 		self.capacity = 6
  		super().__init__(args)
 
 

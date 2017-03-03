@@ -35,7 +35,8 @@ from termcolor import cprint, colored
 from pyfiglet import figlet_format
 from docopt import docopt, DocoptExit
 
-from app import dojo
+from dojo import Dojo
+dojo = Dojo()
 
 
 
