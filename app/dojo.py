@@ -29,7 +29,7 @@ class Dojo:
         for room in args["<room_name>"]:
             
             if not isinstance(room, str):
-                rooms_not_added.append({"Room": room_to_add, "Reason": "Only strings are allowed"})
+                rooms_not_added.append({"Room": room, "Reason": "Only strings are allowed"})
 
             room_to_add = room.capitalize()
             check_in_offices = room_to_add in [existing_room.room_name for existing_room in self.offices]
