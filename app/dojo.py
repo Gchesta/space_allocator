@@ -28,12 +28,13 @@ class Dojo:
 
         for room in args["<room_name>"]:
             
-            if not isinstance(room, str):
-                rooms_not_added.append({"Room": room, "Reason": "Only strings are allowed"})
+            try:
+            	room_to_add = room.capitalize()
+            	check_in_offices = room_to_add in [existing_room.room_name for existing_room in self.offices]
+            	check_in_livingspaces = room_to_add in [existing_room.room_name for existing_room in self.livingspaces]
 
-            room_to_add = room.capitalize()
-            check_in_offices = room_to_add in [existing_room.room_name for existing_room in self.offices]
-            check_in_livingspaces = room_to_add in [existing_room.room_name for existing_room in self.livingspaces]
+            except AttributeError:
+            	rooms_not_added.append({"Room": room, "Reason": "Only strings are allowed"})
 
             if check_in_offices or check_in_livingspaces:
                 rooms_not_added.append({"Room": room_to_add, "Reason": "Name already exists"})
