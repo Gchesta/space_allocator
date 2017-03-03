@@ -1,8 +1,8 @@
 
 from termcolor import cprint, colored
 
-from room import LivingSpace, Office
-from person import Fellow, Staff
+from .room import LivingSpace, Office
+from .person import Fellow, Staff
 from random import choice
 
 
@@ -95,8 +95,7 @@ class Dojo:
             cprint("\nName contains non-alphabetic characters", "yellow")
             cprint("Please try again!\n", "yellow")
             return
-            
-
+        
         check_in_fellows = full_name in [existing_person.full_name for existing_person in self.fellows]
         check_in_staff = full_name in [existing_person.full_name for existing_person in self.staff]
 
@@ -114,12 +113,7 @@ class Dojo:
             cprint("Please add an office and then add a person\n", "yellow")
             return
 
-        try:
-            allocated_livingspace = choice(self.available_livingspaces)
-        except IndexError:
-            cprint("\nThe Dojo lacks an available livingspace", "yellow")
-            cprint("Please add a Livingspace and then add a person\n", "yellow")
-            return
+        
 
         if args["fellow"]:
             accomodation = allocated_livingspace if args["<wants_accomodation>"] == "Y" else "NONE"
@@ -132,6 +126,13 @@ class Dojo:
             cprint(new_fellow.full_name + " will occupy office " + allocated_office.room_name + "\n", "green")
 
             if accomodation != "NONE":
+
+                try:
+                    allocated_livingspace = choice(self.available_livingspaces)
+                except IndexError:
+                    cprint("\nThe Dojo lacks an available livingspace", "yellow")
+                    cprint("Please add a Livingspace and then add a person\n", "yellow")
+                    return
                 allocated_livingspace.occupants.append(new_fellow)
                 if len(allocated_livingspace.occupants) == allocated_livingspace.capacity:
                     self.available_livingspaces.remove(allocated_livingspace)

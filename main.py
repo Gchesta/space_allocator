@@ -35,10 +35,7 @@ from termcolor import cprint, colored
 from pyfiglet import figlet_format
 from docopt import docopt, DocoptExit
 
-from dojo import Dojo
-dojo = Dojo()
-
-
+from app import dojorun
 
 def docopt_cmd(func):
     """
@@ -85,12 +82,12 @@ class Start(cmd.Cmd):
     @docopt_cmd
     def do_create_room(self, args):
         """usage: create_room <type_of_room> <room_name>..."""
-        dojo.create_room(args)
+        dojorun.create_room(args)
 
     @docopt_cmd
     def do_add_person(self, args):
         """usage: add_person <first_name> <surname> (fellow|staff) [<wants_accomodation>]"""
-        dojo.add_person(args)
+        dojorun.add_person(args)
 
 
 if __name__ == '__main__':
