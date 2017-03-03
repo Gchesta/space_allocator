@@ -1,6 +1,10 @@
-from .room import LivingSpace, Office
-from .person import Fellow, Staff
+
+from termcolor import cprint, colored
+
+from room import LivingSpace, Office
+from person import Fellow, Staff
 from random import choice
+
 
 
 class Dojo:
@@ -9,7 +13,6 @@ class Dojo:
     Dojo.
 
     """
-
     def __init__(self):
         self.livingspaces = []
         self.offices = []
@@ -18,92 +21,112 @@ class Dojo:
 
     def create_room(self, args):
         """Create a new room."""
+        rooms_not_added = []
+        rooms_added = []
 
         for room in args["<room_name>"]:
             
-            added_room = room.capitalize()
-            check_in_offices = added_room in [existing_room.room_name for existing_room in self.offices]
-            check_in_livingspaces = added_room in [existing_room.room_name for existing_room in self.livingspaces]
-
-            rooms_not_added = []
-            rooms_added = []
+            room_to_add = room.capitalize()
+            check_in_offices = room_to_add in [existing_room.room_name for existing_room in self.offices]
+            check_in_livingspaces = room_to_add in [existing_room.room_name for existing_room in self.livingspaces]
 
             if check_in_offices or check_in_livingspaces:
-                room.reason = "Name already exists"
-                rooms_not_added.append(room)
+                rooms_not_added.append({"Room": room_to_add, "Reason": "Name already exists"})
 
-            elif not room.isalpha():
-                reason = "Contains non-alphabetic characters"
-                rooms_not_added.append((added_room, reason))
+            elif not isinstance(room, str):
+                rooms_not_added.append({"Room": room_to_add, "Reason": "Only strings are allowed"})
+
+            elif not room_to_add.isalpha():
+                rooms_not_added.append({"Room": room_to_add, "Reason": "Contains non-alphabetic characters"})
 
             elif args["<type_of_room>"].lower() == "office":
-                new_office = Office(added_room)
-                date_created = new_office.date_created
-                rooms_added.append(new_office)
+                new_office = Office(room_to_add)
+                rooms_added.append({"Room": new_office.room_name, "Type": "Office", "Date Created": new_office.date_created})
                 self.offices.append(new_office)
 
-
-            else:
-                new_livingspace = LivingSpace(added_room)
+            elif args["<type_of_room>"].lower() == "livingspace":
+                new_livingspace = LivingSpace(room_to_add)
                 room_type = "Livingspace"
-                date_created = new_livingspace.date_created
-                rooms_added.append(new_office)
+                rooms_added.append({"Room": new_livingspace.room_name, "Type": "Livingspace", "Date Created": new_livingspace.date_created})
                 self.livingspaces.append(new_livingspace)
 
-        print(rooms_added)
+            else:
+                cprint("\nThe Dojo doesn't have that room type", "yellow")
+                cprint("Please try again!", "yellow")
+                return "The Dojo doesn't have that room type"
+                
+                
+        print("\n")
         if rooms_added:
             print(" ")
-            print("The following rooms have been added to the Dojo:\n")
+            cprint("The following rooms have been added to the Dojo:\n", "green")
             for room_added in rooms_added:
-                print("Room: " + room_added.room_name)
-                print("    Type        : " + type(room_added))
-                print("    Date Created: " + room_added.date_created)
+                print("\nRoom: " + room_added["Room"])
+                print("    Type        : " + room_added["Type"])
+                print("    Date Created: " + room_added["Date Created"])
 
         if rooms_not_added:
-            print("The following rooms have not been added to the Dojo:")
-            for room_added in rooms_added:
-                print("Room: " + added_room)
-                print("    Reason:" + reason)
+            
+            print(" ")
+            cprint("The following rooms have NOT been added to the Dojo:\n", "magenta")
+            for room_not_added in rooms_not_added:
+                print("\nRoom: " + room_not_added["Room"])
+                print("    Reason: " + room_not_added["Reason"])
+        print("\n")
                 
 
     def add_person(self, args):
         """Add a new member to the Dojo"""
+        try:
+            full_name = args["<first_name>"].capitalize() + " " + args["<surname>"].capitalize()
+            full_name_split = full_name.split(" ")
+        except AttributeError:
+            
+            cprint("\nName contains non-alphabetic characters", "yellow")
+            cprint("Please try again!\n", "yellow")
+            return "Name contains non-alphabetic characters"
 
-        full_name_split = args["<person_name>"].title().split(" ")
 
         if not "".join(full_name_split).isalpha():
-            return "Names must be made up entirely of letters"
+            cprint("\nName contains non-alphabetic characters", "yellow")
+            cprint("Please try again!\n", "yellow")
+            return
+            
 
-        first_name = full_name_split[0]
-        other_names = " ".join(full_name_split[1:])
-        full_name = first_name + " " + other_names
-
-        check_in_fellows = full_name in [
-            existing_person.full_name for existing_person in self.fellows]
-        check_in_staff = full_name in [
-            existing_person.full_name for existing_person in self.staff]
+        check_in_fellows = full_name in [existing_person.full_name for existing_person in self.fellows]
+        check_in_staff = full_name in [existing_person.full_name for existing_person in self.staff]
 
         if check_in_fellows or check_in_staff:
-            return "There is already a person with the name " + full_name + ". Please try again"
+        
+            cprint("\nThere is already a person with the name " + full_name, "yellow")
+            cprint("Please try again!", "yellow")
+            return "There is already a person with that name" 
 
-        allocated_office = choice(self.offices)
-        allocated_living_space = choice(self.livingspaces)
+        try:
+            allocated_office = choice(self.offices)
+            allocated_living_space = choice(self.livingspaces)
+        except IndexError:
+            cprint("\nThe Dojo lacks at least on room type", "yellow")
+            cprint("Please add a Livingspace and/or an office\n", "yellow")
+            return
 
-        if args["FELLOW"]:
-            accomodation = allocated_living_space if args[
-                "wants_accomodation"] == "Y" else "NONE"
-            new_fellow = Fellow(first_name, other_names,
-                                accomodation, allocated_office)
+        if args["fellow"]:
+            accomodation = allocated_living_space if args["<wants_accomodation>"] == "Y" else "NONE"
+            new_fellow = Fellow(full_name, accomodation, allocated_office)
             self.fellows.append(new_fellow)
             allocated_office.occupants.append(new_fellow)
+            cprint("\nFellow " + new_fellow.full_name + " has been added to the Dojo:", "green")
+            cprint(new_fellow.full_name + " will occupy office " + allocated_office.room_name + "\n", "green")
 
             if accomodation != "NONE":
-                allocated_living_space.append(new_fellow)
-                allocated_living_space.occupants(new_fellow)
+                allocated_living_space.occupants.append(new_fellow)
+                cprint(new_fellow.full_name + " will reside in " + allocated_living_space.room_name + "\n", "green")
 
-        elif args["STAFF"]:
+        elif args["staff"]:
             accomodation = "NONE"
-            new_staff = Staff(first_name, other_names,
-                              accomodation, allocated_office)
+            new_staff = Staff(full_name, allocated_office)
             self.staff.append(new_staff)
             allocated_office.occupants.append(new_staff)
+            cprint("\nStaff " + new_staff.full_name + " has been added to the Dojo:", "green")
+            cprint(new_staff.full_name + " will occupy office " + allocated_office.room_name + "\n", "green")
+
