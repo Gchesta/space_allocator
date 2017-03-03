@@ -35,7 +35,7 @@ class Dojo:
             check_in_offices = room_to_add in [existing_room.room_name for existing_room in self.offices]
             check_in_livingspaces = room_to_add in [existing_room.room_name for existing_room in self.livingspaces]
 
-            elif check_in_offices or check_in_livingspaces:
+            if check_in_offices or check_in_livingspaces:
                 rooms_not_added.append({"Room": room_to_add, "Reason": "Name already exists"})
 
             elif not room_to_add.isalpha():
@@ -139,7 +139,7 @@ class Dojo:
                 cprint(new_fellow.full_name + " will reside in " + allocated_livingspace.room_name + "\n", "green")
 
         elif args["staff"]:
-            accomodation = "NONE"
+            
             new_staff = Staff(full_name, allocated_office)
             self.staff.append(new_staff)
             allocated_office.occupants.append(new_staff)
