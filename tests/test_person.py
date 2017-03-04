@@ -17,15 +17,15 @@ class TestPersons(unittest.TestCase):
     def test_fellow_inheritance(self):
         """Test inheritance on class Fellow"""
 
-        test_fellow = Fellow("George", "Bush Nyongesa", "Restplace", "Workplace")
+        test_fellow = Fellow("Bush Nyongesa", "Workplace", "Restplace")
         self.assertTrue(isinstance(test_fellow, Fellow))
-        self.assertEqual(test_fellow.full_name, "George Bush Nyongesa")
+        self.assertEqual(test_fellow.full_name, "Bush Nyongesa")
         self.assertFalse(isinstance(test_fellow, Staff))
 
     def test_staff_inheritance(self):
          """Test inheritance on class Staff"""
 
-         test_staff = Staff("Simone", "Jerome Steel", "NONE", "Workhorse")
+         test_staff = Staff("Jerome Steel", "Workhorse")
          self.assertTrue(isinstance(test_staff, Staff))
          self.assertEqual(test_staff.office, "Workhorse")
          self.assertFalse(isinstance(test_staff, Fellow))

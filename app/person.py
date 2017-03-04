@@ -1,10 +1,10 @@
 class Person:
 	"""An overall class for person"""
 
-	def __init__(self, full_name, office, livingspace=None):
+	def __init__(self, full_name, office, accomodation=None):
 
 		self.full_name = full_name
-		self.livingspace = livingspace
+		self.accomodation = accomodation
 		self.office = office
 
 	def __repr__(self):

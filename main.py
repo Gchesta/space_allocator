@@ -6,7 +6,7 @@ Welcome to Sophia.
 Andela's one and only space allocator
 
 Usage:
-    sophia create_room <type_of_room> <room_name>...
+    sophia create_room <type_of_room> <room_names>...
     sophia add_person <first_name> <surname> (fellow|staff) [<wants_accomodation>]
     sophia (-i | --interactive)
     sophia (-h | --help)
@@ -81,13 +81,22 @@ class Start(cmd.Cmd):
 
     @docopt_cmd
     def do_create_room(self, args):
-        """usage: create_room <type_of_room> <room_name>..."""
-        dojorun.create_room(args)
+        """Usage: create_room <type_of_room> <room_names>..."""
+        roomnames = args['<room_names>']
+        roomtype = args['<type_of_room>']
+        for roomname in roomnames:
+            dojorun.create_room(roomname, roomtype)
+        
+        
 
     @docopt_cmd
     def do_add_person(self, args):
         """usage: add_person <first_name> <surname> (fellow|staff) [<wants_accomodation>]"""
-        dojorun.add_person(args)
+        firstname = args['<first_name>']
+        surname   = args['<surname>']
+        category = "fellow" if args["fellow"] is True else "staff"
+        accomodation = "Y" if args["<wants_accomodation>"] == "Y" else "NONE" 
+        dojorun.add_person(category, firstname, surname, accomodation)
 
 
 if __name__ == '__main__':
