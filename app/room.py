@@ -15,7 +15,7 @@ class Room:
 class Office(Room):
  	"""A class for Office which inherits from Room"""
  	def __init__(self, args):
- 		self.available_capacity = 4
+ 		self.available_capacity = 6
  		self.category = "Office"
 
  		super().__init__(args)
@@ -23,7 +23,7 @@ class Office(Room):
 class LivingSpace(Room):
  	"""A class for LivingSace which inherits from Room"""
  	def __init__(self, args):
- 		self.available_capacity = 6
+ 		self.available_capacity = 4
  		self.category = "Living Space"
  		super().__init__(args)
 

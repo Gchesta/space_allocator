@@ -68,7 +68,7 @@ class Dojo:
             return 'Names must not contain non-alphabetic characters'
         
         full_name = name.capitalize() + " " + surname.capitalize()
-        check_in_people = full_name in [existing_person.full_name for existing_person in self.people]
+        check_in_people = full_name in [person.full_name for person in self.people]
         
         if check_in_people:
             cprint('\n' + '"' +  full_name + '"' + ' already exists', 'magenta')
@@ -80,13 +80,12 @@ class Dojo:
             
         except IndexError:
             allocated_office = "unallocated"
-            cprint('\n' + '"' +  full_name + '"' + ' has not been allocated to an office','magenta')
-            
+                        
         if category.lower() == "fellow":
             new_person = Fellow(full_name, allocated_office, accomodation)
 
         else:
-            new_person = Fellow(full_name, allocated_office)
+            new_person = Staff(full_name, allocated_office)
 
         self.people.append(new_person)
         if new_person.office != "unallocated":
@@ -94,6 +93,10 @@ class Dojo:
             allocated_office.available_capacity -= 1
             cprint("\n" + new_person.category + " " + new_person.full_name + " has been added to the Dojo:", "green")
             cprint(new_person.full_name + " will occupy office " + allocated_office.room_name + "\n", "green")
+        else:
+            cprint("\n" + new_person.category + " " + new_person.full_name + " has been added to the Dojo:", "green")
+            cprint('\n' + full_name + ' has not been allocated to an office','magenta')
+
 
         if accomodation != "":
 
@@ -108,5 +111,39 @@ class Dojo:
                 allocated_livingspace.occupants.append(new_person)
                 allocated_livingspace.available_capacity -= 1
                 cprint(new_person.full_name + " will reside in " + allocated_livingspace.room_name + "\n", "green")
+
+    def print_room(self, room_name):
+        occupants_list = [room.occupants for room in self.rooms if room.room_name == room_name]
+        room_occupants = [occupant for occupants in occupants_list for occupant in occupants]
+        for occupant in room_occupants:
+            print(occupant)
+
+    def print_allocations(self, filename=""):
+        cprint("\nName\t\t\tAllocated Office\tAllocated Living Space\n" , "yellow")
+        for person in self.people:
+            print(person.full_name +"\t\t" + str(person.office) + "\t\t\t" + str(person.accomodation))
+
+
+    def  print_unallocated(self, filename=""):
+        #unallocated_persons = [person for person in self.people if  ]
+        pass     
+
+
+dojo = Dojo()
+dojo.create_room("Mombasa", "Office")
+dojo.create_room("Nairobi", "Office")
+dojo.create_room("Kingston", "livingspace")
+dojo.create_room("Jamaica", "livingspace")
+dojo.add_person("fellow", "ernest", "achesa", "Y")
+dojo.add_person("fellow", "sammy", "achesa", "Y")
+dojo.add_person("fellow", "ernest", "lucy", "Y")
+dojo.add_person("fellow", "wekesa", "achesa", "Y")
+dojo.add_person("fellow", "ester", "Mary")
+dojo.add_person("staff", "wekesa", "wanjala")
+dojo.add_person("staff", "abdi", "wanjala")
+dojo.add_person("staff", "ripoti", "wanjala")
+dojo.add_person("staff", "jogi", "wanjala")
+dojo.add_person("staff", "lupita", "wanjala")
+dojo.print_allocations()
 
    
