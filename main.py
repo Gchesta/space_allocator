@@ -95,7 +95,7 @@ class Start(cmd.Cmd):
         firstname = args['<first_name>']
         surname   = args['<surname>']
         category = "fellow" if args["fellow"] is True else "staff"
-        accomodation = "Y" if args["<wants_accomodation>"] == "Y" else "NONE" 
+        accomodation = "Y" if args["<wants_accomodation>"] == "Y" else "" 
         dojorun.add_person(category, firstname, surname, accomodation)
 
 
