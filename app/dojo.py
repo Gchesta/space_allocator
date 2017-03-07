@@ -1,5 +1,5 @@
 
-from termcolor import cprint, colored
+from termcolor import cprint
 
 from .room import LivingSpace, Office
 from .person import Fellow, Staff
@@ -149,3 +149,5 @@ class Dojo:
                                "Unallocated" or person.accomodation == "Unallocated"]
         for person in unallocated_persons:
             self.allocate_room(person)
+
+    
