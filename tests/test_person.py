@@ -2,7 +2,7 @@
 module specifically the Fellow and the Staff Classes 
 """
 import unittest
-from person import  Fellow, Staff
+from app.person import  Fellow, Staff
 
 class TestPersons(unittest.TestCase):
     """ This class has got two methods that have got a similar 

@@ -2,7 +2,7 @@
 specifically the LivingSpace and the Office Classes 
 """
 import unittest
-from room import  LivingSpace, Office
+from app.room import  LivingSpace, Office
 
 class TestRooms(unittest.TestCase):
     """ This class has got two methods that have got a similar 
