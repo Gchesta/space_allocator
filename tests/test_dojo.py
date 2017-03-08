@@ -1,4 +1,9 @@
+import sys
+import os
+from io import StringIO
+
 import unittest
+
 from app.dojo import Dojo
 
 class TestCreateRoom(unittest.TestCase):
@@ -74,7 +79,102 @@ class TestAddPerson(unittest.TestCase):
 		self.dojo.create_room("Hunter", "Office")
 		self.dojo.add_person("staff", "John", "Ngravo")
 		self.assertEqual(self.dojo.add_person("staff", "John", "Ngravo"), "Person already exists")
-			 
+
+class TesstPrintFunctions(unittest.TestCase):
+	"""A class to test the print functionalities in v1"""
+
+	def setUp(self):
+		self.dojo = Dojo()
+
+	def test_print_names_of_people_in_room(self):
+		#create rooms and add persons
+		self.dojo.create_room("Nairobi", "Office")
+		self.dojo.add_person("fellow", "ernest", "achesa", "N")
+		self.dojo.add_person("staff", "george", "wanjala")
+		#snapshot to store sys.stdout
+		temp = sys.stdout
+		#capture will hold the output being printed
+		capture = StringIO()
+		sys.stdout = capture
+		#call functions
+		self.dojo.print_room("Nairobi")
+		#end functions
+		#revert to snapshot of sys.stdout
+		sys.stdout = temp
+		#the printed value that was captured
+		output = capture.getvalue()
+		heading = "\x1b[33m\nROOM NAME: NAIROBI\tROLE\n"
+		expected_output = heading + "\x1b[0m\nErnest Achesa \t\tFELLOW\nGeorge Wanjala \t\tSTAFF\n"
+		self.assertEqual(output, expected_output)
+
+	def test_print_allocations_on_screen(self):
+		#create rooms and add persons
+		self.dojo.create_room("Nairobi", "Office")
+		self.dojo.create_room("Chetambe", "livingspace")
+		self.dojo.add_person("staff", "george", "wanjala", "Y")
+		#snapshot to store sys.stdout
+		temp = sys.stdout
+		capture = StringIO()
+		sys.stdout = capture
+		#call functions
+		self.dojo.print_allocations()
+		#end functions
+		#revert to snapshot of sys.stdout
+		sys.stdout = temp
+		output = capture.getvalue()
+		heading_1 = "\x1b[34m\nALLOCATIONS - OFFICES\x1b[0m\n"
+		heading_2 = "\x1b[33m\nROOM NAME: NAIROBI\tROLE\t\tACCOMODATION\n"
+		Office_occupants = "\x1b[0m\nGeorge Wanjala \t\tSTAFF\t\t\n"
+		heading_3 = "\x1b[34m\nALLOCATIONS - LIVING SPACES\x1b[0m\n"
+		heading_4 = "\x1b[33m\nROOM NAME: CHETAMBE\tROLE\t\tOFFICE\n\x1b[0m\n"
+		expected_output = heading_1 + heading_2 + Office_occupants + heading_3 + heading_4
+		self.assertEqual(output, expected_output)
+
+	def  test_print_allocations_with_output_file(self):
+		self.dojo.create_room("Nairobi", "Office")
+		self.dojo.create_room("Chetambe", "livingspace")
+		self.dojo.add_person("staff", "george", "wanjala", "Y")
+		self.dojo.print_allocations("test_allocations.txt")
+		self.assertTrue(os.path.exists("test_allocations.txt"))
+		with open("test_allocations.txt") as outputfile:
+			lines = [line.rstrip('\n') for line in outputfile]
+			self.assertTrue("ROOM NAME: CHETAMBE\tROLE\t\tOFFICE" in lines)
+			self.assertTrue("George Wanjala \t\tSTAFF\t\t" in lines)
+		os.remove("test_allocations.txt")
+
+	def test_print_unallocated_on_screen(self):
+		self.dojo.create_room("Nairobi", "Office")
+		self.dojo.add_person("fellow", "george", "wanjala", "Y")
+		#snapshot to store sys.stdout
+		temp = sys.stdout
+		capture = StringIO()
+		sys.stdout = capture
+		#call functions
+		self.dojo.print_unallocated()
+		#end functions
+		sys.stdout = temp
+		output = capture.getvalue()
+		heading_1 = "\x1b[34m\nUNALLOCATED - OFFICES\x1b[0m\n"
+		heading_2 = "\x1b[33m\nPERSON NAME\t\tROLE\n\x1b[0m\n"
+		heading_3 = "\x1b[34m\nUNALLOCATED - LIVING SPACES\x1b[0m\n"
+		heading_3 = "\x1b[34m\nUNALLOCATED - LIVING SPACES\x1b[0m\n"
+		heading_4 = "\x1b[33m\nPERSON NAME\t\tROLE\n\x1b[0m\n"
+		unallocated_persons = "George Wanjala \t\tFELLOW\n"
+		expected_output = heading_1 + heading_2 + heading_3 + heading_4 +unallocated_persons
+		self.assertEqual(output, expected_output)
+
+	def  test_print_uanllocated_with_output_file(self):
+		self.dojo.create_room("Nairobi", "Office")
+		self.dojo.add_person("fellow", "george", "wanjala", "Y")
+		self.dojo.print_unallocated("test_unallocated.txt")
+		self.assertTrue(os.path.exists("test_unallocated.txt"))
+		with open("test_unallocated.txt", "r") as outputfile:
+			lines = [line.rstrip('\n') for line in outputfile]
+			self.assertTrue("PERSON NAME\t\tROLE" in lines)
+			self.assertTrue("George Wanjala \t\tFELLOW" in lines)
+		os.remove("test_unallocated.txt")
+
+ 
 
 if __name__ == "__main__":
 	unittest.main()
