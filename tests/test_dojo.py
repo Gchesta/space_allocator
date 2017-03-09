@@ -153,7 +153,7 @@ class TestPrintFunctions(unittest.TestCase):
 			lines = [line.rstrip('\n') for line in outputfile]
 			self.assertTrue("ROOM NAME: CHETAMBE\tROLE\t\tOFFICE" in lines)
 			self.assertTrue("George Wanjala \t\tSTAFF\t\t" in lines)
-		#os.remove("test_allocations.txt")
+		os.remove("test_allocations.txt")
 
 	def test_print_unallocated_on_screen(self):
 		#setup mock data
