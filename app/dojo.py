@@ -1,14 +1,14 @@
 
-from termcolor import cprint
+from termcolor import cprint, colored
 
-from .room import LivingSpace, Office
-from .person import Fellow, Staff
+from room import LivingSpace, Office
+from person import Fellow, Staff
 from random import choice
 
 
 class Dojo:
     """
-    A class that contains the methods to create a new room and to add new people to the
+    A class that contains the methods to create a new room and to add new persons to the
     Dojo.
 
     """
@@ -16,138 +16,262 @@ class Dojo:
     def __init__(self):
 
         self.rooms = []
-        self.people = []
+        self.persons = []
 
-    def create_room(self, room_name, room_type):
+    def create_room(self, name, category):
 
-        if not isinstance(room_type, str) or not isinstance(room_name, str):
-            cprint("\n" + "'" + room_name + "'" +
-                   " contains non-alphabets", "magenta")
-            cprint("Room not added\n", "magenta")
-            return "Room names in strings only"
+        name = str(name).capitalize()
+        category = str(category).capitalize()
+        room_is_invalid = self.check_room_invalidity(name, category)
 
-        room_name = room_name.capitalize()
-        room_type = room_type.capitalize()
+        if room_is_invalid:
+            cprint(room_is_invalid, "magenta")
+            return room_is_invalid
+        else:
+            if category == "Office": 
+                room = Office(name)
+            else:
+                room = LivingSpace(name)
+        
+        self.rooms.append(room)
+        cprint("\nSuccessfully added %s, %s\n" % (category,
+               name), "yellow")
+        self.allocate_the_unallocated(category)
 
-        if room_type.lower() not in ("office", "livingspace"):
-            cprint("\n" + "'" + room_type + "'" +
-                   " is an invalid room type", "magenta")
-            cprint("Room not added\n", "magenta")
-            return "Invalid room type"
+    def check_room_invalidity(self, name, category):
 
-        if not room_name.isalpha() or not room_type.isalpha():
-            cprint("\n" + "'" + room_name + "'" +
-                   " contains non-alphabets", "magenta")
-            cprint("Room not added\n", "magenta")
-            return "Room names in alphabets only"
+        if category.lower() not in ("office", "livingspace"):
+            return ("\n '%s' is an invalid room type\n"
+                            "Room not added\n" % category)
+            
+        if not name.isalpha():
+            return ("\n room name contains"
+             "non-alphabets\nRoom not added\n")
 
-        check_in_rooms = room_name in [
-            existing_room.room_name for existing_room in self.rooms]
+        room_already_exists = self.check_if_room_exists(name)
 
-        if check_in_rooms:
-            cprint("\n" + "'" + room_name + "'" + " already exists", "magenta")
-            cprint("Room not added\n", "magenta")
-            return "Name already exists"
+        if room_already_exists:
+            return("\n The name '%s' already exists\n"
+                "Room not added\n" % name)
+        else:
+            return False
 
-        if room_type.lower() == "office":
-            new_room = Office(room_name)
+    def check_if_room_exists(self, name):
+        for room in self.rooms:
+            if room.name == name:
+                return True
+            else:
+                return False
+
+
+    def allocate_the_unallocated(self, category):
+
+        if category == "Office":
+            for person in self.persons:
+                if person.office == "Unallocated":
+                    self.allocate_office(person)
 
         else:
-            new_room = LivingSpace(room_name)
+            for person in self.persons:
+                if person.accomodation == "Unallocated":
+                    self.allocate_livingspace(person)
 
-        self.rooms.append(new_room)
-        cprint("\nSuccessfully added " + new_room.category +
-               " " + room_name + "\n", "yellow")
-        self.allocate_the_unallocated()
+    def allocate_office(self, person):
+
+        available_office = self.check_room_availability("Office")       
+
+        if available_office:
+            person.office = available_office
+            available_office.occupants.append(person)
+            available_office.available_capacity -= 1
+            cprint("\n %s will occupy office %s\n"
+                % (str(person), str(available_office)), "green")
+
+        elif person.office == "Pending":
+            person.office = "Unallocated"
+            cprint("\n %s has not been allocated to"
+                 "an office" % (str(person)), "magenta")
+        else:
+            pass
+
+    def allocate_livingspace(self, person):
+
+        available_livingspace = self.check_room_availability("Living Space")        
+
+        if available_livingspace:
+            person.accomodation = available_livingspace
+            available_livingspace.occupants.append(person)
+            available_livingspace.available_capacity -= 1
+            cprint("\n %s will reside in %s\n" 
+                % (str(person), str(available_livingspace)), "green")
+
+        elif person.accomodation == "Pending":
+            person.accomodation = "Unallocated"
+            cprint("\n %s has not been allocated to"
+                 "a living space" % (str(person)), "magenta")
+        else:
+            pass
+        
+
+    def check_room_availability(self, category):
+        try:
+            available_room = choice(
+                    [room for room in self.rooms if room.category == category and room.available_capacity])
+        except IndexError:
+            available_room = False
+
+        return available_room
 
     def add_person(self, category, name, surname, accomodation="N"):
-        """Add a new member to the Dojo"""
-        if not isinstance(name, str) or not isinstance(surname, str):
-            cprint("\n" + "'" + str(name) + " " + str(surname) +
-                   "'" + " contains non-alphabets", "magenta")
-            cprint("Person not added\n", "magenta")
-            return "Names in strings only"
 
-        if not name.isalpha() or not surname.isalpha():
-            cprint("\n" + "'" + name + " " + surname + "'" +
-                   " contains non-alphabets", "magenta")
-            cprint("Person not added\n", "magenta")
-            return "Names must not contain non-alphabetic characters"
+        name = str(name).capitalize() + " " + str(surname).capitalize()
+        accomodation = accomodation.capitalize()
+        category = category.capitalize()
+        person_is_invalid = self.check_person_invalidity(name, accomodation)
 
-        full_name = name.capitalize() + " " + surname.capitalize()
-        check_in_people = full_name in [
-            person.full_name for person in self.people]
-
-        if check_in_people:
-            cprint("\n" + "'" + full_name + "'" + " already exists", "magenta")
-            cprint("Person not added\n", "magenta")
-            return "Person already exists"
-
-        allocated_office = "Pending"
-        accomodation = "Pending" if accomodation == "Y" else ""
-
-        if category.lower() == "fellow":
-            new_person = Fellow(full_name, allocated_office, accomodation)
+        if person_is_invalid:
+            cprint(person_is_invalid, "magenta")
+            return person_is_invalid
 
         else:
-            new_person = Staff(full_name, allocated_office)
+            office = "Pending"
+            accomodation = "Pending" if accomodation == "Y" and category == "Fellow" else ""
 
-        self.people.append(new_person)
-        cprint("\n" + new_person.category + " " +
-               new_person.full_name + " has been added to the Dojo:", "green")
-        self.allocate_room(new_person)
+        if category == "Fellow":
+            person = Fellow(name, office, accomodation)
 
-    def allocate_room(self, new_person):
+        else:
+            person = Staff(name, office)
 
-        if new_person.office == "Unallocated" or new_person.office == "Pending":
+        self.persons.append(person)
+        cprint("\n %s has been added to the Dojo as a %s" % (name, category), "green")
+        self.allocate_office(person)
 
-            try:
-                allocated_office = choice(
-                    [room for room in self.rooms if room.category == "Office" and room.available_capacity])
+        if accomodation == "Pending":
+            self.allocate_livingspace(person)
 
-            except IndexError:
-                allocated_office = "Unallocated"
+    def check_person_invalidity(self, name, accomodation="N"):
+        name_split = name.split(" ")
 
-            if allocated_office != "Unallocated":
-                new_person.office = allocated_office
-                allocated_office.occupants.append(new_person)
-                allocated_office.available_capacity -= 1
-                cprint("\n" + new_person.full_name + " will occupy office " +
-                       allocated_office.room_name, "green")
+        if not name_split[0].isalpha() or not name_split[1].isalpha():
+            return ("\n %s contains non-alphabets\n"
+                "Person not added\n" % name)
 
-            elif new_person.office == "Pending":
-                new_person.office = allocated_office
-                cprint("\n" + new_person.full_name +
-                       " has not been allocated to an office", "magenta")
-            else:
-                pass
+        name_already_exists = name in [
+            person.name for person in self.persons]
 
-        if new_person.accomodation == "Unallocated" or new_person.accomodation == "Pending":
+        if name_already_exists:
+            return ("\n %s already exists\n"
+            "Person not added\n" % name)
 
-            try:
-                allocated_livingspace = choice(
-                    [room for room in self.rooms if room.category == "Living Space" and room.available_capacity])
-            except IndexError:
-                allocated_livingspace = "Unallocated"
+        if accomodation not in ("N","Y"):
+            return ("Choose either 'Y' or 'N' for accomodation")
 
-            if allocated_livingspace != "Unallocated":
-                new_person.accomodation = allocated_livingspace
-                allocated_livingspace.occupants.append(new_person)
-                allocated_livingspace.available_capacity -= 1
-                cprint("\n" + new_person.full_name + " will reside in " +
-                       allocated_livingspace.room_name, "green")
-            elif new_person.accomodation == "Pending":
-                new_person.accomodation = allocated_livingspace
-                cprint("\n" + new_person.full_name +
-                       " has not been allocated to a Living Space", "magenta")
+        return False
 
-            else:
-                pass
+    def print_room(self, name):
+        name = name.capitalize()
+        room_exists = self.check_if_room_exists(name)
+        if room_exists:
+            for room in self.rooms:
+                if room.name == name:
+                    cprint("\nROOM NAME: %s\tROLE\n" % name.upper(), "yellow")
+                    for occupant in room.occupants:
+                        print(str(occupant) + " \t\t" + occupant.category.upper())
 
-    def allocate_the_unallocated(self):
-        unallocated_persons = [person for person in self.people if person.office ==
-                               "Unallocated" or person.accomodation == "Unallocated"]
-        for person in unallocated_persons:
-            self.allocate_room(person)
+        else:
+            cprint("Room does not exists", "magenta")
 
-    
+    def choose_headings(self, origin):
+        #headings and sub_headings for print_allocations
+        heading_allocations_offices = "\nALLOCATIONS - OFFICES"
+        subheading_allocations_offices = "\nROOM NAME: %s\tROLE\t\tACCOMODATION\n"
+        heading_allocations_livingspaces = "\nALLOCATIONS - LIVING SPACES"
+        sub_heading_allocations_livingspaces = "\nROOM NAME: %s\tROLE\t\tOFFICE\n"
+
+        if origin == "print_allocations":
+            return(heading_allocations_offices, subheading_allocations_offices,
+                heading_allocations_livingspaces, sub_heading_allocations_livingspaces)
+
+        #if origin is not print_allocations, it is print_unallocated
+        #headings and sub_headings for print_unallocations
+        heading_unallocated_offices = "\nUNALLOCATED - OFFICES"
+        heading_unallocated_livingspaces = "\nUNALLOCATED - LIVING SPACES"
+        sub_heading_unallocated = "\nPERSON NAME\t\tROLE\n"
+
+        return(heading_unallocated_offices, heading_unallocated_livingspaces,
+         sub_heading_unallocated)
+
+    def print_allocations(self, filename=""):
+        headings = self.choose_headings("print_allocations")
+        heading_office = headings[0]
+        sub_heading_office = headings[1]
+        heading_livingspace = headings[2]
+        sub_heading_livingspace = headings[3]
+
+        cprint(heading_office,  "blue")
+        for room in self.rooms:
+            if room.category == "Office":
+                cprint(sub_heading_office % room.name.upper(), "yellow")
+                for occupant in room.occupants:
+                    print("%s \t\t%s\t\t%s" %(str(occupant), 
+                        occupant.category.upper(), str(occupant.accomodation)))
+
+        cprint(heading_livingspace, "blue")
+        for room in self.rooms:
+            if room.category == "Living Space":
+                cprint(sub_heading_livingspace % room.name.upper(),  "yellow")
+                for occupant in room.occupants:
+                    print("%s \t\t%s\t\t%s" %(str(occupant), 
+                        occupant.category.upper(), str(occupant.office)))
+                            
+        if filename:
+            with open(filename, "w") as outputfile:
+                outputfile.write(heading_office)
+                for room in self.rooms:
+                    if room.category == "Office":
+                        outputfile.write(sub_heading_office % room.name.upper())
+                        for occupant in room.occupants:
+                            outputfile.write("%s \t\t%s\t\t%s\n" %(str(occupant), 
+                        occupant.category.upper(), str(occupant.accomodation)))
+
+                outputfile.write(heading_livingspace)
+                for room in self.rooms:
+                    if room.category == "Living Space":
+                        outputfile.write(sub_heading_livingspace % room.name.upper())
+                        for occupant in room.occupants:
+                            outputfile.write("%s \t\t%s\t\t%s\n" % (str(occupant), 
+                        occupant.category.upper(), str(occupant.office)))
+
+
+    def print_unallocated(self, filename=""):
+        headings = self.choose_headings("print_unallocated")
+        heading_office = headings[0]
+        heading_livingspace = headings[1]
+        sub_heading = headings[2]
+
+        cprint(heading_office,  "blue")
+        cprint(sub_heading,  "yellow")
+        for person in self.persons:
+            if person.office == "Unallocated":
+                print("%s\t\t%s" % (person.name, person.category.upper()))
+
+        cprint(heading_livingspace,  "blue")
+        cprint(sub_heading,  "yellow")
+        for person in self.persons:
+            if person.accomodation == "Unallocated":
+                print("%s\t\t%s" % (person.name, person.category.upper()))
+
+        if filename:
+            with open(filename, "w") as outputfile:
+                outputfile.write(heading_office + "\n")
+                outputfile.write(sub_heading)
+                for person in self.persons:
+                    if person.office == "Unallocated":
+                        outputfile.write("%s\t\t%s\n" %(person.name, person.category.upper()))
+
+                outputfile.write(heading_livingspace)
+                outputfile.write(sub_heading)
+                for person in self.persons:
+                    if person.accomodation == "Unallocated":
+                        outputfile.write("%s\t\t%s\n" % (person.name, person.category.upper()))
