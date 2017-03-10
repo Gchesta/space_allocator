@@ -262,6 +262,7 @@ class TestRellocatePerson(unittest.TestCase):
 		self.assertTrue(self.dojo.rooms[0].occupants)
 
 class LoadPeople(unittest.TestCase):
+	"""Test cases for the LoadPeople function"""
 	def setUp(self):
 		self.dojo = Dojo()
 
