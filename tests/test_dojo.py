@@ -147,9 +147,9 @@ class TestPrintFunctions(unittest.TestCase):
 		#escaped characters such as x1b[33m refer to the color
 		heading_1 = "\x1b[34m\nALLOCATIONS - OFFICES\x1b[0m\n"
 		heading_2 = "\x1b[33m\nROOM NAME: NAIROBI\tROLE\t\tACCOMODATION\n"
-		Office_occupants = "\x1b[0m\nGeorge Wanjala \t\tSTAFF\t\t\n"
+		Office_occupants = "\x1b[0m\nGeorge Wanjala \t\tSTAFF\t\t\n\n"
 		heading_3 = "\x1b[34m\nALLOCATIONS - LIVING SPACES\x1b[0m\n"
-		heading_4 = "\x1b[33m\nROOM NAME: CHETAMBE\tROLE\t\tOFFICE\n\x1b[0m\n"
+		heading_4 = "\x1b[33m\nROOM NAME: CHETAMBE\tROLE\t\tOFFICE\n\x1b[0m\n\n"
 		expected_output = heading_1 + heading_2 + Office_occupants + heading_3 + heading_4
 		self.assertEqual(output, expected_output)
 
@@ -181,10 +181,10 @@ class TestPrintFunctions(unittest.TestCase):
 		output = string_with_print_content.getvalue()
 		#escaped characters such as x1b[33m refer to the color
 		heading_1 = "\x1b[34m\nUNALLOCATED - OFFICES\x1b[0m\n"
-		heading_2 = "\x1b[33m\nPERSON NAME\t\tROLE\n\x1b[0m\n"
+		heading_2 = "\x1b[33m\nPERSON NAME\t\tROLE\n\x1b[0m\n\n"
 		heading_3 = "\x1b[34m\nUNALLOCATED - LIVING SPACES\x1b[0m\n"
 		heading_4 = "\x1b[33m\nPERSON NAME\t\tROLE\n\x1b[0m\n"
-		unallocated_persons = "George Wanjala\t\tFELLOW\n"
+		unallocated_persons = "George Wanjala\t\tFELLOW\n\n"
 		expected_output = heading_1 + heading_2 + heading_3 + heading_4 + unallocated_persons
 		self.assertEqual(output, expected_output)
 
@@ -194,7 +194,7 @@ class TestPrintFunctions(unittest.TestCase):
 		self.dojo.print_unallocated("test_unallocated.txt")
 		self.assertTrue(os.path.isfile("test_unallocated.txt"))
 		with open("test_unallocated.txt", "r") as outputfile:
-			lines = [line.rstrip('\n') for line in outputfile]
+			lines = [line.rstrip() for line in outputfile]
 			self.assertTrue("PERSON NAME\t\tROLE" in lines)
 			self.assertTrue("George Wanjala\t\tFELLOW" in lines)
 		os.remove("test_unallocated.txt")
