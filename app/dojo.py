@@ -194,7 +194,7 @@ class Dojo:
                 heading_allocations_livingspaces, sub_heading_allocations_livingspaces)
 
         #if origin is not print_allocations, it is print_unallocated
-        #headings and sub_headings for print_unallocations
+        #headings and sub_headings for print_unallocations.
         heading_unallocated_offices = "\nUNALLOCATED - OFFICES"
         heading_unallocated_livingspaces = "\nUNALLOCATED - LIVING SPACES"
         sub_heading_unallocated = "\nPERSON NAME\t\tROLE\n"
@@ -277,4 +277,3 @@ class Dojo:
                         outputfile.write("%s\t\t%s\n" % (person.name, person.category.upper()))
 
 
-    
