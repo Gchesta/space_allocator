@@ -1,8 +1,8 @@
 
-from termcolor import cprint, colored
+from termcolor import cprint
 
-from room import LivingSpace, Office
-from person import Fellow, Staff
+from .room import LivingSpace, Office
+from .person import Fellow, Staff
 from random import choice
 
 
@@ -34,7 +34,7 @@ class Dojo:
                 room = LivingSpace(name)
         
         self.rooms.append(room)
-        cprint("\nSuccessfully added %s, %s\n" % (category,
+        cprint("\nSuccessfully added %s %s\n" % (category,
                name), "yellow")
         self.allocate_the_unallocated(category)
 
@@ -60,8 +60,7 @@ class Dojo:
         for room in self.rooms:
             if room.name == name:
                 return True
-            else:
-                return False
+        return False
 
 
     def allocate_the_unallocated(self, category):
@@ -143,6 +142,7 @@ class Dojo:
         else:
             person = Staff(name, office)
 
+        person.idno = len(self.persons) + 1    
         self.persons.append(person)
         cprint("\n %s has been added to the Dojo as a %s" % (name, category), "green")
         self.allocate_office(person)
@@ -275,3 +275,6 @@ class Dojo:
                 for person in self.persons:
                     if person.accomodation == "Unallocated":
                         outputfile.write("%s\t\t%s\n" % (person.name, person.category.upper()))
+
+
+    

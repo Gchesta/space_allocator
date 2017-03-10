@@ -6,6 +6,7 @@ class Person:
 		self.name = name
 		self.accomodation = accomodation
 		self.office = office
+		self.idno = 0
 
 	def __repr__(self):
 		
