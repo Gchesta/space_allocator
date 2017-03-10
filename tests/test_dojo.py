@@ -4,8 +4,7 @@ from io import StringIO
 
 import unittest
 
-from dojo import Dojo
-
+from space_allocator.app import Dojo, Staff, Fellow, LivingSpace, Office
 
 class TestCreateRoom(unittest.TestCase):
 
@@ -15,6 +14,12 @@ class TestCreateRoom(unittest.TestCase):
 	def test_rejects_invalid_room_type(self):
 		self.assertEqual((self.dojo.create_room("Spooky", "Scary")), "\n 'Scary'"
 			" is an invalid room type\nRoom not added\n")
+	
+	def test_new_room_is_instance_of_room(self):
+		self.dojo.create_room("Nairobi", "Office")
+		self.dojo.create_room("Bush", "LivingSpace")
+		self.assertIsInstance(self.dojo.rooms[0], Office)
+		self.assertIsInstance(self.dojo.rooms[1], LivingSpace)
 
 	def test_rejects_invalid_name(self):
 		self.dojo.create_room("Scary34", "Office")
@@ -39,6 +44,11 @@ class TestAddPerson(unittest.TestCase):
 	
 	def setUp(self):
 		self.dojo = Dojo()
+	def test_new_person_is_instance_of_person(self):
+		self.dojo.add_person("fellow", "John", "Ngravo", "Y")
+		self.dojo.add_person("staff", "johny", "mdogo")
+		self.assertIsInstance(self.dojo.persons[0], Fellow)
+		self.assertIsInstance(self.dojo.persons[1], Staff)
 
 	def test_rejects_invalid_person_name(self):
 		self.dojo.add_person("fellow", "John3", "Spike")
@@ -188,6 +198,111 @@ class TestPrintFunctions(unittest.TestCase):
 			self.assertTrue("PERSON NAME\t\tROLE" in lines)
 			self.assertTrue("George Wanjala\t\tFELLOW" in lines)
 		os.remove("test_unallocated.txt")
+
+class TestRellocatePerson(unittest.TestCase):
+	def setUp(self):
+		self.dojo = Dojo()
+
+	def test_rejects_inavalid_id(self):
+		rellocate_a = self.dojo.rellocate_person("a", "Nairobi")
+		self.assertEqual(rellocate_a, "Invalid Person ID")
+
+	def test_rejects_non_existent_id(self):
+		self.dojo.create_room("Nairobi", "Office")
+		self.dojo.add_person("fellow", "bob", "james")
+		self.dojo.create_room("Red", "Office")
+		rellocate_bob = self.dojo.rellocate_person(3, "Red")
+		self.assertEqual(rellocate_bob, "Invalid Person ID")
+	
+	def test_rejects_non_existent_room(self):
+		self.dojo.create_room("Nairobi", "Office")
+		self.dojo.add_person("fellow", "bob", "james")
+		rellocate_bob = self.dojo.rellocate_person(1, "Purple")
+		self.assertEqual(rellocate_bob, "No such room exists")
+
+	def test_rellocates_a_person_succesfully_office(self):
+		self.dojo.create_room("Nairobi", "Office")
+		self.dojo.add_person("fellow", "bob", "james")
+		self.dojo.create_room("Kisii", "Office")
+		self.dojo.rellocate_person(1, "Kisii")
+		self.assertTrue(self.dojo.rooms[1].occupants)
+		self.assertFalse(self.dojo.rooms[0].occupants)
+
+	def test_rellocates_a_person_succesfully_livingspace(self):
+		self.dojo.create_room("Nairobi", "Office")
+		self.dojo.create_room("Kisii", "livingspace")
+		self.dojo.add_person("fellow", "bob", "james", "Y")
+		self.dojo.create_room("Kenya", "livingspace")
+		self.dojo.rellocate_person(1, "Kenya")
+		self.assertTrue(self.dojo.rooms[0].occupants)
+		self.assertFalse(self.dojo.rooms[1].occupants)
+		self.assertTrue(self.dojo.rooms[2].occupants)
+
+	def test_reject_reallocation_of_staff_to_livingspace(self):
+		self.dojo.create_room("Nairobi", "Office")
+		self.dojo.add_person("staff", "bob", "james")
+		self.dojo.create_room("Kisii", "Livingspace")
+		self.dojo.rellocate_person(1, "Kisii")
+		self.assertFalse(self.dojo.rooms[1].occupants)
+		self.assertTrue(self.dojo.rooms[0].occupants)
+
+	def test_rejects_reallocation_to_full_room(self):
+		self.dojo.create_room("Nairobi", "Office")
+		self.dojo.add_person("staff", "baba", "james")
+		self.dojo.add_person("staff", "bebe", "james")
+		self.dojo.add_person("staff", "bibi", "james")
+		self.dojo.add_person("staff", "bobo", "james")
+		self.dojo.add_person("staff", "bubu", "james")
+		self.dojo.add_person("staff", "babu", "james")
+		self.dojo.create_room("Kisii", "Office")
+		self.dojo.add_person("staff", "babe", "james")
+		relocate_babe = self.dojo.rellocate_person(7, "Nairobi")
+		msg ="The requested room is full. Try another room"
+		self.assertEqual(relocate_babe, msg)
+		self.assertTrue(self.dojo.rooms[0].occupants)
+
+class LoadPeople(unittest.TestCase):
+	def setUp(self):
+		self.dojo = Dojo()
+
+	def test_raises_error_on_non_existing_file(self):
+		test_load = self.dojo.load_people("load.txt")
+		self.assertEqual(test_load, "No such file exists")
+
+	def test_raises_error_on_an_empty_file(self):
+		with open("load.txt", "w"):
+			test_load = self.dojo.load_people("load.txt")
+			self.assertEqual(test_load, "load.txt is empty!")
+		os.remove("load.txt")
+
+	def test_loads_people_succesfully(self):
+		with open("load2.txt", "w") as inputfile:
+			inputfile.write("OLUWAFEMI SULE FELLOW Y\n")
+			inputfile.write("DOMINIC WALTERS STAFF\n")
+			inputfile.write("SIMON PATTERSON FELLOW Y\n")
+		self.dojo.load_people("load2.txt")
+		self.assertEqual(len(self.dojo.persons), 3)
+		self.assertTrue(self.dojo.persons[2].name == "Simon Patterson")
+		os.remove("load2.txt")
+			
+			
+
+
+
+
+			
+
+
+
+
+
+
+			
+
+			
+		
+
+			
 
 if __name__ == "__main__":
 	unittest.main()

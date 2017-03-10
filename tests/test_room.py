@@ -2,7 +2,7 @@
 specifically the LivingSpace and the Office Classes 
 """
 import unittest
-from app.room import  LivingSpace, Office
+from space_allocator.app.room import  LivingSpace, Office
 
 class TestRooms(unittest.TestCase):
     """ This class has got two methods that have got a similar 
@@ -17,7 +17,7 @@ class TestRooms(unittest.TestCase):
     def test_livingspace_inheritance(self):
         test_living_space = LivingSpace("Restplace")
         self.assertTrue(isinstance(test_living_space, LivingSpace))
-        self.assertTrue(test_living_space.date_created)
+        self.assertEqual(test_living_space.available_capacity, 4)
         self.assertFalse(isinstance(test_living_space, Office))
 
     def test_office_inheritance(self):
