@@ -199,27 +199,21 @@ class Dojo:
             with open(filename, "w") as outputfile:
                 outputfile.write(heading_office)
                 for room, occupants in offices.items():
-                     outputfile.write(sub_heading_office % room.name.upper())
-                     outputfile.write(occupants)
+                     outputfile.write("%s%s" %((sub_heading_office % room.name.upper()),occupants))
                 outputfile.write(heading_livingspace)
                 for room, occupants in livingspaces.items():
-                    outputfile.write(sub_heading_livingspace % room.name.upper())
-                    outputfile.write(occupants)
+                    outputfile.write("%s%s" %((sub_heading_livingspace % room.name.upper()),occupants))
 
     def print_unallocated(self, filename=""):
         heading_office = "\nUNALLOCATED - OFFICES"
         heading_livingspace = "\nUNALLOCATED - LIVING SPACES"
         sub_heading = "\nPERSON NAME\t\tROLE\n"
-        unallocated_livingspace = ""
-        unallocated_office = ""
-
-        for person in self.persons:
-            if person.office == "Unallocated":
-                unallocated_office += ("%s\t\t%s\n" % (person.name, person.category.upper()))
-
-            if person.accomodation == "Unallocated":
-                unallocated_livingspace += ("%s\t\t%s\n" % (person.name, person.category.upper()))
-
+        
+        unallocated_office = "\n".join (["%s\t\t%s" % (person.name, 
+            person.category.upper()) for person in self.persons if person.office == "Unallocated"])
+        unallocated_livingspace = "\n".join (["%s\t\t%s" % (person.name, 
+            person.category.upper()) for person in self.persons if person.accomodation == "Unallocated"])
+        
         cprint(heading_office,  "blue")
         cprint(sub_heading,  "yellow")
         print(unallocated_office)
@@ -236,22 +230,19 @@ class Dojo:
                 outputfile.write(unallocated_livingspace)
 
     def get_allocations(self):
-        offices = {}
-        livingspaces = {}
+        offices_occupants = {}
+        livingspaces_occupants = {}
         for room in self.rooms:
-            if room.category == "Office":
-                allocations_office = ""
-                for occupant in room.occupants:
-                     allocations_office += ("%s \t\t%s\t\t%s\n" %(str(occupant), 
-                        occupant.category.upper(), str(occupant.accomodation)))
-                offices[room] = allocations_office
-            else:
-                allocations_livingspace = ""
-                for occupant in room.occupants:
-                    allocations_livingspace += ("%s \t\t%s\t\t%s\n" %(str(occupant), 
-                        occupant.category.upper(), str(occupant.office)))
-                livingspaces[room] = allocations_livingspace
-        return(offices, livingspaces)
+            if room.category == "Office" and room.occupants:
+                offices_occupants[room] = "".join(["%s \t\t%s\t\t%s\n" %(str(occupant), 
+                occupant.category.upper(), str(occupant.accomodation)) for occupant in room.occupants])
+            elif room.category == "Living Space" and room.occupants:
+                livingspaces_occupants[room] = "".join(["%s \t\t%s\t\t%s\n" %(str(occupant), 
+                occupant.category.upper(), str(occupant.office)) for occupant in room.occupants])
+        return(offices_occupants, livingspaces_occupants)
+
+                
+
 
 
 
