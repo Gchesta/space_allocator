@@ -198,7 +198,7 @@ class TestPrintFunctions(unittest.TestCase):
 			self.assertTrue("George Wanjala\t\tFELLOW" in lines)
 		os.remove("test_unallocated.txt")
 
-"""class TestRellocatePerson(unittest.TestCase):
+class TestRellocatePerson(unittest.TestCase):
 	def setUp(self):
 		self.dojo = Dojo()
 
@@ -283,26 +283,7 @@ class LoadPeople(unittest.TestCase):
 		self.dojo.load_people("load2.txt")
 		self.assertEqual(len(self.dojo.persons), 3)
 		self.assertTrue(self.dojo.persons[2].name == "Simon Patterson")
-		os.remove("load2.txt")"""
-			
-			
-
-
-
-
-			
-
-
-
-
-
-
-			
-
-			
-		
-
-			
+		os.remove("load2.txt")	
 
 if __name__ == "__main__":
 	unittest.main()
