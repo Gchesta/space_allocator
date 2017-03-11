@@ -104,7 +104,7 @@ class TestPrintFunctions(unittest.TestCase):
 	we reassign sys.stdout to string_with_print_content. 
 	The system will print everything here which we shall later 
 	capture with the getvalue() method. We compare this value with 
-	the expected output and assert whether its true."""
+	the expected output and assert whether it's true."""
 
 	def setUp(self):
 		self.dojo = Dojo()
