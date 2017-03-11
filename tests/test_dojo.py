@@ -217,7 +217,7 @@ class TestRellocatePerson(unittest.TestCase):
 		self.dojo.create_room("Nairobi", "Office")
 		self.dojo.add_person("fellow", "bob", "james")
 		rellocate_bob = self.dojo.rellocate_person(1, "Purple")
-		self.assertEqual(rellocate_bob, "No such room exists")
+		self.assertEqual(rellocate_bob, "\nNo such room exists\n")
 
 	def test_rellocates_a_person_succesfully_office(self):
 		self.dojo.create_room("Nairobi", "Office")
