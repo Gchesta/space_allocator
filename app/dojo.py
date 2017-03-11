@@ -35,6 +35,8 @@ class Dojo:
         self.allocate_the_unallocated(category)
 
     def check_room_invalidity(self, name, category):
+        """checks if room to be added is has invalid arguments
+        and returns False when it is not invalid"""
         if category.lower() not in ("office", "livingspace"):
             return ("\n '%s' is an invalid room type\n"
                             "Room not added\n" % category)            
@@ -42,17 +44,19 @@ class Dojo:
             return ("\n room name contains"
              "non-alphabets\nRoom not added\n")
         room_exists = self.check_if_room_exists(name)
-        if room_exists != "No such room exists":
+        if room_exists != "\nNo such room exists\n":
             return("\n The name '%s' already exists\n"
                 "Room not added\n" % name)
         else:
             return False
 
-    def check_if_room_exists(self, name):        
+    def check_if_room_exists(self, name):
+        """Receives a room_name as argument 
+        and returns the room object"""        
         try:
             check = [room for room in self.rooms if room.name == name][0]
         except IndexError:
-            check = "No such room exists"
+            check = "\nNo such room exists\n"
         return check
 
     def allocate_the_unallocated(self, category):
@@ -96,9 +100,11 @@ class Dojo:
             pass
         
     def check_room_availability(self, category):
+        """Finds and return a room that's not yet full"""
         try:
             available_room = choice(
-                    [room for room in self.rooms if room.category == category and room.available_capacity])
+                    [room for room in self.rooms
+                     if room.category == category and room.available_capacity])
         except IndexError:
             available_room = False
         return available_room
@@ -125,6 +131,8 @@ class Dojo:
             self.allocate_livingspace(person)
 
     def check_person_invalidity(self, name, accomodation, category):
+        """Checks whether a new person has invalid arguments and 
+        returns False if not"""
         name_split = name.split(" ")        
         if not name_split[0].isalpha() or not name_split[1].isalpha():
             return ("\n %s contains non-alphabets\n"
@@ -143,7 +151,7 @@ class Dojo:
     def print_room(self, name):
         name = name.capitalize()
         room = self.check_if_room_exists(name)
-        if room != "No such room exists":
+        if room != "\nNo such room exists\n":
             cprint("\nROOM NAME: %s\tROLE\n" % name.upper(), "yellow")
             for occupant in room.occupants:
                 print(str(occupant) + " \t\t" + occupant.category.upper())
@@ -151,6 +159,10 @@ class Dojo:
             cprint(room, "magenta")
 
     def print_allocations(self, filename=""):
+        """Receives an optional argument (filename) and calls function
+         get_allocations which returns two dictionaries in a tuple. The dictionaries contain
+         the rooms as keys and a string with person name, category(whether sfatt or fellow) and 
+         other room as the value"""
         heading_office = "\nALLOCATIONS - OFFICES"
         sub_heading_office = "\nROOM NAME: %s\tROLE\t\tACCOMODATION\n"
         heading_livingspace = "\nALLOCATIONS - LIVING SPACES"
@@ -158,6 +170,7 @@ class Dojo:
         allocations = self.get_allocations()
         offices = allocations[0]
         livingspaces = allocations[1]
+
         complete_string = heading_office
         cprint(heading_office, "blue")
         for room, occupants in offices.items():
@@ -175,6 +188,8 @@ class Dojo:
                 outputfile.write(complete_string)
                 
     def print_unallocated(self, filename=""):
+        """Prints the list of unallocated people on the screen and 
+        outputs a txt file with the names"""
         heading_office = "\nUNALLOCATED - OFFICES"
         heading_livingspace = "\nUNALLOCATED - LIVING SPACES"
         sub_heading = "\nPERSON NAME\t\tROLE\n"
@@ -205,9 +220,4 @@ class Dojo:
                 livingspaces_occupants[room] = "".join(["%s \t\t%s\t\t%s\n" %(str(occupant), 
                 occupant.category.upper(), str(occupant.office)) for occupant in room.occupants])
         return(offices_occupants, livingspaces_occupants)
-
-                
-
-
-
 
