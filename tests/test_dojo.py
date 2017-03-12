@@ -204,14 +204,14 @@ class TestRellocatePerson(unittest.TestCase):
 
 	def test_rejects_inavalid_id(self):
 		rellocate_a = self.dojo.rellocate_person("a", "Nairobi")
-		self.assertEqual(rellocate_a, "Invalid Person ID")
+		self.assertEqual(rellocate_a, "\nInvalid Person ID\n")
 
 	def test_rejects_non_existent_id(self):
 		self.dojo.create_room("Nairobi", "Office")
 		self.dojo.add_person("fellow", "bob", "james")
 		self.dojo.create_room("Red", "Office")
 		rellocate_bob = self.dojo.rellocate_person(3, "Red")
-		self.assertEqual(rellocate_bob, "Invalid Person ID")
+		self.assertEqual(rellocate_bob, "\nInvalid Person ID\n")
 	
 	def test_rejects_non_existent_room(self):
 		self.dojo.create_room("Nairobi", "Office")
@@ -283,7 +283,7 @@ class LoadPeople(unittest.TestCase):
 		self.dojo.load_people("load2.txt")
 		self.assertEqual(len(self.dojo.persons), 3)
 		self.assertTrue(self.dojo.persons[2].name == "Simon Patterson")
-		os.remove("load2.txt")	
+		os.remove("load2.txt")
 
 if __name__ == "__main__":
 	unittest.main()
