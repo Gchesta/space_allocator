@@ -124,6 +124,7 @@ class Dojo:
             person = Fellow(name, office, accomodation)
         else:
             person = Staff(name, office)
+        person.idno = str(len(self.persons) + 1)
         self.persons.append(person)
         cprint("\n %s has been added to the Dojo as a %s" % (name, category), "green")
         self.allocate_office(person)
@@ -137,9 +138,7 @@ class Dojo:
         if not name_split[0].isalpha() or not name_split[1].isalpha():
             return ("\n %s contains non-alphabets\n"
                 "Person not added\n" % name)
-        name_already_exists = name in [
-            person.name for person in self.persons]
-        if name_already_exists:
+        if self.get_person_by_attribute(name, "name") != "Invalid name":
             return ("\n %s already exists\n"
             "Person not added\n" % name)
         if accomodation not in ("N","Y"):
@@ -147,6 +146,13 @@ class Dojo:
         if category not in ("Fellow", "Staff"):
             return "Invalid person category"
         return False
+
+    def get_person_by_attribute(self, var, attr):
+        try:
+            person = [person for person in self.persons if getattr(person, attr) == var][0]
+        except IndexError:
+            return "Invalid %s" % attr
+        return person
 
     def print_room(self, name):
         name = name.capitalize()
@@ -220,4 +226,10 @@ class Dojo:
                 livingspaces_occupants[room] = "".join(["%s \t\t%s\t\t%s\n" %(str(occupant), 
                 occupant.category.upper(), str(occupant.office)) for occupant in room.occupants])
         return(offices_occupants, livingspaces_occupants)
+    
+    def rellocate_person(self, idno, room):
+        pass
 
+    def load_people(self, filename):
+        pass
+        
