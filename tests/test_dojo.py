@@ -54,6 +54,16 @@ class TestAddPerson(unittest.TestCase):
 		self.dojo.add_person("fellow", "John3", "Spike")
 		self.assertTrue("John3 Spike" not in [person.name for person in self.dojo.persons])
 
+	def test_rejects_invalid_room_arg(self):
+		mr_x = self.dojo.add_person("fellow", "John", "Spike", "X")
+		self.assertEqual(mr_x, "Choose either 'Y' or 'N' for accomodation")
+		
+
+	def test_rejects_invalid_person_category(self):
+		teacher = self.dojo.add_person("teacher", "John", "Spike")
+		self.assertEqual(teacher, "Invalid person category")
+
+
 	def test_rejects_invalid_person_name_non_strings(self):
 		self.assertEqual(self.dojo.add_person("fellow", 125, 58888), "\n 125 58888"
 		 " contains non-alphabets\nPerson not added\n")
@@ -145,10 +155,10 @@ class TestPrintFunctions(unittest.TestCase):
 		sys.stdout = stored_standard_output
 		output = string_with_print_content.getvalue()
 		#escaped characters such as x1b[33m refer to the color
-		heading_1 = "\x1b[34m\nALLOCATIONS - OFFICES\x1b[0m\n"
-		heading_2 = "\x1b[33m\nROOM NAME: NAIROBI\tROLE\t\tACCOMODATION\n"
-		Office_occupants = "\x1b[0m\nGeorge Wanjala \t\tSTAFF\t\t\n\n"
-		heading_3 = "\x1b[34m\nALLOCATIONS - LIVING SPACES\x1b[0m\n"
+		heading_1 = "\x1b[33m\nALLOCATIONS - OFFICES\n"
+		heading_2 = "\nROOM NAME \t\tROLE\x1b[0m\n\nNAIROBI\n"  + "=" * 30
+		Office_occupants = "\nGeorge Wanjala \t\tSTAFF\n\n"
+		heading_3 = "\x1b[33m\nALLOCATIONS - LIVING SPACES\n\nROOM NAME \t\tROLE\x1b[0m\n\n"
 		expected_output = heading_1 + heading_2 + Office_occupants + heading_3
 		self.assertEqual(output, expected_output)
 
@@ -160,8 +170,8 @@ class TestPrintFunctions(unittest.TestCase):
 		self.assertTrue(os.path.isfile("test_allocations.txt"))
 		with open("test_allocations.txt") as outputfile:
 			lines = [line.rstrip('\n') for line in outputfile]
-			self.assertTrue("ROOM NAME: NAIROBI\tROLE\t\tACCOMODATION" in lines)
-			self.assertTrue("George Wanjala \t\tSTAFF\t\t" in lines)
+			self.assertTrue("ROOM NAME \t\tROLE" in lines)
+			self.assertTrue("George Wanjala \t\tSTAFF" in lines)
 		os.remove("test_allocations.txt")
 
 	def test_print_unallocated_on_screen(self):
@@ -205,6 +215,14 @@ class TestRellocatePerson(unittest.TestCase):
 	def test_rejects_inavalid_id(self):
 		rellocate_a = self.dojo.rellocate_person("a", "Nairobi")
 		self.assertEqual(rellocate_a, "\nInvalid Person ID\n")
+
+	def test_rejects_rellocating_to_current_room(self):
+		self.dojo.create_room("Nairobi", "Office")
+		self.dojo.add_person("fellow", "bob", "james")
+		self.dojo.create_room("Red", "Office")
+		rellocate_bob = self.dojo.rellocate_person(1, "Nairobi")
+		msg = "You are trying to rellocated a person to a room he is occupying"
+		self.assertEqual(rellocate_bob, msg)
 
 	def test_rejects_non_existent_id(self):
 		self.dojo.create_room("Nairobi", "Office")
