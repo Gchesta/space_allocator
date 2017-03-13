@@ -11,7 +11,7 @@ from random import choice
 class Dojo:
     """
     A class that contains the methods to create a new room and to add new persons to the
-    Dojo"""
+    Dojo."""
 
     def __init__(self):
         self.rooms = []

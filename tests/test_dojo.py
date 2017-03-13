@@ -41,6 +41,7 @@ class TestCreateRoom(unittest.TestCase):
 
 
 class TestAddPerson(unittest.TestCase):
+	"""Test cases for add person function"""
 	
 	def setUp(self):
 		self.dojo = Dojo()
