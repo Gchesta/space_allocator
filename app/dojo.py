@@ -1,6 +1,4 @@
 
-from os.path import isfile, getsize
-
 from termcolor import cprint
 
 from .room import LivingSpace, Office
@@ -96,7 +94,7 @@ class Dojo:
         elif person.accomodation == "Pending":
             person.accomodation = "Unallocated"
             cprint("\n %s has not been allocated to"
-                 "a living space" % (str(person)), "magenta")
+                 " a living space" % (str(person)), "magenta")
         else:
             pass
         
@@ -146,7 +144,7 @@ class Dojo:
             return ("\n %s already exists\n"
             "Person not added\n" % name)
         if accomodation not in ("N","Y"):
-            return ("Choose either 'Y' or 'N' for accomodation")
+            return ("\nChoose either 'Y' or 'N' for accomodation\n")
         if category not in ("Fellow", "Staff"):
             return "Invalid person category"
         
@@ -194,6 +192,7 @@ class Dojo:
             with open(filename, "w") as outputfile:
                 outputfile.write("%s%s%s%s%s%s" %(heading_office, sub_heading_office, offices_string,
                 heading_livingspace, sub_heading_livingspace, livingspaces_string))
+            cprint("\nSuccessfully printed the output to file %s\n" %filename, "yellow")
         else:
             cprint("%s%s" %(heading_office, sub_heading_office), "yellow")
             print(offices_string)
@@ -219,6 +218,7 @@ class Dojo:
         if filename:
             with open(filename, "w") as outputfile:
                 outputfile.write(complete_string)
+            cprint("\Successfully printed the output to file %s\n" %filename, "yellow")
         else:
             cprint(heading_office,  "blue")
             cprint(sub_heading,  "yellow")
@@ -227,65 +227,4 @@ class Dojo:
             cprint(sub_heading,  "yellow")
             print(unallocated_livingspace)
                         
-    def rellocate_person(self, idno, room):
-        """This method relocates a person from one room to another"""
-        person = self.get_person_by_attribute(str(idno), "idno")
-        if person == "Invalid idno":
-            cprint("\nInvalid Person ID\n", "magenta")
-            return "\nInvalid Person ID\n"
-        new_allocation = self.check_if_room_exists(room)
-        if new_allocation == "\nNo such room exists\n":
-            cprint(new_allocation, "magenta")
-            return new_allocation
-
-        if person.office == new_allocation or person.accomodation == new_allocation:
-            msg = "You are trying to rellocated a person to a room he is occupying"
-            print(msg)
-            return msg
-
-        person_category = person.category
-        room_category = new_allocation.category
-
-        if person_category == "Staff" and room_category == "Living Space":
-            return "Invalid request. Staff do not have accomodation "
-        if not new_allocation.available_capacity:
-            return "The requested room is full. Try another room"        
-        
-        if room_category == "Office":
-            current_allocation = person.office
-            current_allocation.occupants.remove(person)
-            new_allocation.occupants.append(person)
-            person.office = new_allocation
-        else:
-            current_allocation = person.accomodation
-            new_allocation.occupants.append(person)
-            person.accomodation = new_allocation
-            #this allows us to remove a person from an existing room
-            #if a person doesn't have an accomodation, we avoid an attributerror
-            if current_allocation:
-                current_allocation.occupants.remove(person)
-    
-    def load_people(self, filename):
-        if not isfile(filename):
-            return "No such file exists"
-        if getsize(filename) == 0:
-            return "%s is empty!" % filename
-        with open(filename, "r") as inputfile:
-            lines = [line.rstrip('\n') for line in inputfile]
-        for line in lines:
-            line_split = line.split()
-            if len(line_split) < 3 or len(line_split) > 4:
-                cprint("'%s' is invalid\nPerson not added" % line)
-            else:
-                self.format_load_input(line_split)
-
-    def format_load_input(self, line_split):
-        try:
-            firstname = line_split[0]
-            surname = line_split[1]
-            category = line_split[2]
-            accomodation = line_split[3]
-        except IndexError:
-            accomodation = "N"
-        self.add_person(category, firstname, surname, accomodation)
-
+   

@@ -94,7 +94,7 @@ class Start(cmd.Cmd):
         firstname = args['<first_name>']
         surname   = args['<surname>']
         category = "fellow" if args["fellow"] is True else "staff"
-        accomodation = "Y" if args["<wants_accomodation>"] == "Y" else "N" 
+        accomodation = str(args["<wants_accomodation>"]).capitalize() if args["<wants_accomodation>"] else "N" 
         dojorun.add_person(category, firstname, surname, accomodation)
 
     @docopt_cmd
@@ -114,15 +114,6 @@ class Start(cmd.Cmd):
         """usage: print_unallocated [<filename>]"""
         filename = args["<filename>"] + ".txt" if args["<filename>"] else False
         dojorun.print_unallocated(filename)
-        
-
-
-
-
-
-
-
-
 
 if __name__ == '__main__':
     prompt = Start()

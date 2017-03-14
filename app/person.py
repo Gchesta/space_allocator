@@ -12,7 +12,6 @@ class Person:
 		
  		return self.name
 
-
 class Fellow(Person):
 	"""A class for fellows"""
 	
