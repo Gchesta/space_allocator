@@ -1,16 +1,16 @@
 class Person:
 	"""An overall class for person"""
 
-	def __init__(self, full_name, office, accomodation=""):
+	def __init__(self, name, office, accomodation=""):
 
-		self.full_name = full_name
+		self.name = name
 		self.accomodation = accomodation
 		self.office = office
+		self.idno = 0
 
 	def __repr__(self):
 		
- 		return self.full_name
-
+ 		return self.name
 
 class Fellow(Person):
 	"""A class for fellows"""

@@ -2,7 +2,7 @@
 module specifically the Fellow and the Staff Classes 
 """
 import unittest
-from app.person import  Fellow, Staff
+from space_allocator.app.person import  Fellow, Staff
 
 class TestPersons(unittest.TestCase):
     """ This class has got two methods that have got a similar 
@@ -19,7 +19,7 @@ class TestPersons(unittest.TestCase):
 
         test_fellow = Fellow("Bush Nyongesa", "Workplace", "Restplace")
         self.assertTrue(isinstance(test_fellow, Fellow))
-        self.assertEqual(test_fellow.full_name, "Bush Nyongesa")
+        self.assertEqual(test_fellow.name, "Bush Nyongesa")
         self.assertFalse(isinstance(test_fellow, Staff))
 
     def test_staff_inheritance(self):

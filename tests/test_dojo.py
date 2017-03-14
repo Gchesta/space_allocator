@@ -1,80 +1,214 @@
+import sys
+import os
+from io import StringIO
+
 import unittest
-from app.dojo import Dojo
+
+from space_allocator.app import Dojo, Staff, Fellow, LivingSpace, Office
 
 class TestCreateRoom(unittest.TestCase):
+
 	def setUp(self):
 		self.dojo = Dojo()
 		
-
 	def test_rejects_invalid_room_type(self):
-		self.assertEqual((self.dojo.create_room("Spooky", "Scary")), "Invalid room type")
+		self.assertEqual((self.dojo.create_room("Spooky", "Scary")), "\n 'Scary'"
+			" is an invalid room type\nRoom not added\n")
+	
+	def test_new_room_is_instance_of_room(self):
+		self.dojo.create_room("Nairobi", "Office")
+		self.dojo.create_room("Bush", "LivingSpace")
+		self.assertIsInstance(self.dojo.rooms[0], Office)
+		self.assertIsInstance(self.dojo.rooms[1], LivingSpace)
 
-	def test_rejects_invalid_room_name(self):
+	def test_rejects_invalid_name(self):
 		self.dojo.create_room("Scary34", "Office")
-		self.assertTrue("Scary34" not in [room.room_name for room in self.dojo.rooms])
+		self.assertTrue("Scary34" not in [room.name for room in self.dojo.rooms])
 
 	def test_create_office_room_successfully(self):
 		self.dojo.create_room("Japan", "Office")
-		self.assertTrue("Japan" in [room.room_name for room in self.dojo.rooms])
+		self.assertTrue("Japan" in [room.name for room in self.dojo.rooms])
 
 	def test_create_living_space_successfully(self):
 		self.dojo.create_room("Hopewell", "livingspace")
-		self.assertTrue("Hopewell" in [room.room_name for room in self.dojo.rooms])
+		self.assertTrue("Hopewell" in [room.name for room in self.dojo.rooms])
 
-	def test_rejects_duplicate_room_name(self):
+	def test_rejects_duplicate_name(self):
 		self.dojo.create_room("Jamaica", "Office")
 		self.dojo.create_room("Jamaica", "livingspace")
-		self.assertTrue("Jamaica" in [room.room_name for room in self.dojo.rooms if room.category == "Office"])
-		self.assertFalse("Jamaica" in [room.room_name for room in self.dojo.rooms if room.category == "Living Space"])
+		self.assertTrue("Jamaica" in [room.name for room in self.dojo.rooms if room.category == "Office"])
+		self.assertFalse("Jamaica" in [room.name for room in self.dojo.rooms if room.category == "Living Space"])
 
 
 class TestAddPerson(unittest.TestCase):
+	"""Test cases for add person function"""
 	
 	def setUp(self):
 		self.dojo = Dojo()
+	def test_new_person_is_instance_of_person(self):
+		self.dojo.add_person("fellow", "John", "Ngravo", "Y")
+		self.dojo.add_person("staff", "johny", "mdogo")
+		self.assertIsInstance(self.dojo.persons[0], Fellow)
+		self.assertIsInstance(self.dojo.persons[1], Staff)
 
 	def test_rejects_invalid_person_name(self):
 		self.dojo.add_person("fellow", "John3", "Spike")
-		self.assertTrue("John3 Spike" not in [person.full_name for person in self.dojo.people])
+		self.assertTrue("John3 Spike" not in [person.name for person in self.dojo.persons])
+
+	def test_rejects_invalid_room_arg(self):
+		mr_x = self.dojo.add_person("fellow", "John", "Spike", "X")
+		self.assertEqual(mr_x, "\nChoose either 'Y' or 'N' for accomodation\n")
+		
+
+	def test_rejects_invalid_person_category(self):
+		teacher = self.dojo.add_person("teacher", "John", "Spike")
+		self.assertEqual(teacher, "Invalid person category")
+
 
 	def test_rejects_invalid_person_name_non_strings(self):
-		self.assertEqual(self.dojo.add_person("fellow", 125, 58888), 'Names in strings only')
-
+		self.assertEqual(self.dojo.add_person("fellow", 125, 58888), "\n 125 58888"
+		 " contains non-alphabets\nPerson not added\n")
 	
 	def test_adds_fellow_succesfully(self):
 		self.dojo.create_room("Hunter", "Office")
 		self.dojo.add_person("fellow", "johny", "bravo")
-		self.assertTrue("Johny Bravo" in [person.full_name for person in self.dojo.people])
+		self.assertTrue("Johny Bravo" in [person.name for person in self.dojo.persons])
 
 	def test_adds_fellow_succesfully_with_accomadation(self):
 		self.dojo.create_room("Hunter", "Office")
 		self.dojo.create_room("Hunteress", "livingspace")
 		self.dojo.add_person("fellow", "John", "Ngravo", "Y")
-		self.assertTrue("John Ngravo" in [person.full_name for person in self.dojo.people])
+		self.assertTrue("John Ngravo" in [person.name for person in self.dojo.persons])
 
 	def test_adds_fellow_and_has_received_accomodation(self):
 		self.dojo.create_room("Hunter", "Office")
 		self.dojo.create_room("Hunteress", "livingspace")
 		self.dojo.add_person("fellow", "John", "Ngravo", "Y")
-		self.assertTrue(self.dojo.people[0].accomodation.room_name == "Hunteress")
+		self.assertTrue(self.dojo.persons[0].accomodation.name == "Hunteress")
 
 	def test_adds_fellow_and_staff_received_offices(self):
 		self.dojo.create_room("Hunter", "Office")
 		self.dojo.add_person("fellow", "johny", "bravo")
 		self.dojo.add_person("staff", "John", "Ngravo")
-		self.assertTrue(self.dojo.people[0].office.room_name == "Hunter")
-		self.assertTrue(self.dojo.people[1].office.room_name == "Hunter")
+		self.assertTrue(self.dojo.persons[0].office.name == "Hunter")
+		self.assertTrue(self.dojo.persons[1].office.name == "Hunter")
 
 	def test_adds_staff_succesfully(self):
 		self.dojo.create_room("Hunter", "Office")
 		self.dojo.add_person("staff", "John", "Ngravo")
-		self.assertTrue("John Ngravo" in [person.full_name for person in self.dojo.people])
+		self.assertTrue("John Ngravo" in [person.name for person in self.dojo.persons])
 		
 	def test_raise_error_on_duplicate_persons(self):
 		self.dojo.create_room("Hunter", "Office")
 		self.dojo.add_person("staff", "John", "Ngravo")
-		self.assertEqual(self.dojo.add_person("staff", "John", "Ngravo"), "Person already exists")
-			 
+		self.assertEqual(self.dojo.add_person("staff", "John", "Ngravo"),
+		 "\n John Ngravo already exists\nPerson not added\n")
+
+
+class TestPrintFunctions(unittest.TestCase):
+	"""A class to test the print functionalities and the ability
+	of the functions to output optional txt files. 
+
+	The test_print functions test whether the functions will actually 
+	print the required content on the screen. We first create a room, 
+	and then add persons. Before running the print function, 
+	we reassign sys.stdout to string_with_print_content. 
+	The system will print everything here which we shall later 
+	capture with the getvalue() method. We compare this value with 
+	the expected output and assert whether it's true."""
+
+	def setUp(self):
+		self.dojo = Dojo()
+
+	def test_print_names_of_people_in_room(self):
+		#setup mock data
+		self.dojo.create_room("Nairobi", "Office")
+		self.dojo.add_person("fellow", "ernest", "achesa", "N")
+		self.dojo.add_person("staff", "george", "wanjala")
+		#string_with_print_content will hold the output being printed
+		stored_standard_output = sys.stdout
+		string_with_print_content = StringIO()
+		sys.stdout = string_with_print_content
+		#call the function which will print to string_with_print_content...
+		#...instead of printing on the screen
+		self.dojo.print_room("Nairobi")
+		#end the function and revert to the original state of sys.stdout
+		sys.stdout = stored_standard_output
+		output = string_with_print_content.getvalue()
+		#escaped characters such as x1b[33m refer to the color
+		heading = "\x1b[33m\nROOM NAME: NAIROBI\tROLE\n"
+		expected_output = heading + "\x1b[0m\nErnest Achesa \t\tFELLOW\nGeorge Wanjala \t\tSTAFF\n"
+		self.assertEqual(output, expected_output)
+
+	def test_print_allocations_on_screen(self):
+		#setup mock data		
+		self.dojo.create_room("Nairobi", "Office")
+		self.dojo.create_room("Chetambe", "livingspace")
+		self.dojo.add_person("staff", "george", "wanjala", "Y")
+		#string_with_print_content will hold the output being printed
+		stored_standard_output = sys.stdout
+		string_with_print_content = StringIO()
+		sys.stdout = string_with_print_content
+		#call the function which will print to string_with_print_content...
+		#...instead of printing on the screen
+		self.dojo.print_allocations()
+		#end the function and revert to the original state of sys.stdout
+		sys.stdout = stored_standard_output
+		output = string_with_print_content.getvalue()
+		#escaped characters such as x1b[33m refer to the color
+		heading_1 = "\x1b[33m\nALLOCATIONS - OFFICES\n"
+		heading_2 = "\nROOM NAME \t\tROLE\x1b[0m\n\nNAIROBI\n"  + "=" * 30
+		Office_occupants = "\nGeorge Wanjala \t\tSTAFF\n\n"
+		heading_3 = "\x1b[33m\nALLOCATIONS - LIVING SPACES\n\nROOM NAME \t\tROLE\x1b[0m\n\n"
+		expected_output = heading_1 + heading_2 + Office_occupants + heading_3
+		self.assertEqual(output, expected_output)
+
+	def  test_print_allocations_with_output_file(self):
+		self.dojo.create_room("Chetambe", "livingspace")
+		self.dojo.create_room("Nairobi", "Office")
+		self.dojo.add_person("staff", "george", "wanjala", "Y")
+		self.dojo.print_allocations("test_allocations.txt")
+		self.assertTrue(os.path.isfile("test_allocations.txt"))
+		with open("test_allocations.txt") as outputfile:
+			lines = [line.rstrip('\n') for line in outputfile]
+			self.assertTrue("ROOM NAME \t\tROLE" in lines)
+			self.assertTrue("George Wanjala \t\tSTAFF" in lines)
+		os.remove("test_allocations.txt")
+
+	def test_print_unallocated_on_screen(self):
+		#setup mock data
+		self.dojo.create_room("Nairobi", "Office")
+		self.dojo.add_person("fellow", "george", "wanjala", "Y")
+		#string_with_print_content will hold the output being printed
+		stored_standard_output = sys.stdout
+		string_with_print_content = StringIO()
+		sys.stdout = string_with_print_content
+		#call the function which will print to string_with_print_content...
+		#...instead of printing on the screen
+		self.dojo.print_unallocated()
+		#end the function and revert to the original state of sys.stdout
+		sys.stdout = stored_standard_output
+		output = string_with_print_content.getvalue()
+		#escaped characters such as x1b[33m refer to the color
+		heading_1 = "\x1b[34m\nUNALLOCATED - OFFICES\x1b[0m\n"
+		heading_2 = "\x1b[33m\nPERSON NAME\t\tROLE\n\x1b[0m\n\n"
+		heading_3 = "\x1b[34m\nUNALLOCATED - LIVING SPACES\x1b[0m\n"
+		heading_4 = "\x1b[33m\nPERSON NAME\t\tROLE\n\x1b[0m\n"
+		unallocated_persons = "George Wanjala\t\tFELLOW\n"
+		expected_output = heading_1 + heading_2 + heading_3 + heading_4 + unallocated_persons
+		self.assertEqual(output, expected_output)
+
+	def  test_print_uanllocated_with_output_file(self):
+		self.dojo.create_room("Nairobi", "Office")
+		self.dojo.add_person("fellow", "george", "wanjala", "Y")
+		self.dojo.print_unallocated("test_unallocated.txt")
+		self.assertTrue(os.path.isfile("test_unallocated.txt"))
+		with open("test_unallocated.txt", "r") as outputfile:
+			lines = [line.rstrip() for line in outputfile]
+			self.assertTrue("PERSON NAME\t\tROLE" in lines)
+			self.assertTrue("George Wanjala\t\tFELLOW" in lines)
+		os.remove("test_unallocated.txt")
+
 
 if __name__ == "__main__":
 	unittest.main()

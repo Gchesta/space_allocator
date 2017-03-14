@@ -1,16 +1,14 @@
-from datetime import date
 
 class Room:
 	"""A class for the class Room"""
 
-	def __init__(self, room_name):
+	def __init__(self, name):
 
-		self.room_name = room_name
+		self.name = name
 		self.occupants = []
-		self.date_created = str(date.today())
-
+		
 	def __repr__(self):
- 		return self.room_name
+ 		return self.name
 
 class Office(Room):
  	"""A class for Office which inherits from Room"""
