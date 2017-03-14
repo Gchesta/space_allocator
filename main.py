@@ -10,6 +10,9 @@ Usage:
     sophia add_person <first_name> <surname> (fellow|staff) [<wants_accomodation>]
     sophia print_room <room_name>
     sophia print_allocations [<filename>]
+    sophia rellocate_person <id> <room_name>
+    sophia load_people <filename>
+    sophia exit
     sophia (-i | --interactive)
     sophia (-h | --help)
     sophia (-v | --version)
@@ -17,12 +20,13 @@ Usage:
 
 Arguments:
     <type_of_room>              Choose between a livingspace and an office
-    <room_name>                 The name of the room to create or to print
+    <room_name>                 The name of the room to create, print or rellocate person to
     <first_name>                First name of the new person
     <surname>                   Surnaname of the new person
     (<fellow>|<staff>)          Choose whether the new person is a fellow or staff
     [<wants_accomodation>]      Choose whether the new person wants accomodation
-    [<filename>]                The name of the text file if you want a file to print
+    [<filename>]                The name of the text file if you want a file to print or load from
+    <id>                        The person id 
 
 Options:
     -h --help                   Show this screen.
@@ -115,7 +119,25 @@ class Start(cmd.Cmd):
         filename = args["<filename>"] + ".txt" if args["<filename>"] else False
         dojorun.print_unallocated(filename)
 
+    @docopt_cmd
+    def do_rellocate_person(self, args):
+        """usage: rellocate_person <id> <room_name>"""
+        idno = args['<id>']
+        roomname = args["<room_name>"]
+        dojorun.rellocate_person(idno, roomname)
+
+    @docopt_cmd
+    def do_load_people(self, args):
+        """usage: load_people <filename>"""
+        filename = args["<filename>"] + ".txt"
+        dojorun.load_people(filename)
+
+    def do_exit(self, arg):
+        """Usage: exit"""
+        cprint ("\nSophia says bye...\n", "yellow")
+        sys.exit()
+
 if __name__ == '__main__':
     prompt = Start()
     prompt.prompt = colored('Sophy> ', 'green', attrs=['bold'])
-    prompt.cmdloop('Talk to me...')
+    prompt.cmdloop("\nTalk to me...\n")
