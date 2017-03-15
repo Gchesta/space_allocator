@@ -15,13 +15,13 @@ class TestSaveState(unittest.TestCase):
 		self.database = database
 		
 	def test_save_state_file_exists_defined_db(self):
-		#test that the db is created with specified name
+		"""test that the db is created with specified name"""
 		self.database.save_state("trial.db")
 		self.assertTrue(isfile("trial.db"))
 		remove("trial.db")
 
 	def test_save_state_succesfully_with_defined_db_2(self):
-		#test that the db is created with specified name
+		"""test that the db is created with specified name"""
 		self.dojo.load_people("dummy.txt")
 		self.database.save_state("trial.db")
 		engine = create_engine("sqlite:///trial.db", echo = False)
