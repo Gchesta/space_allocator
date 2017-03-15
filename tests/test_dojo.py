@@ -275,18 +275,18 @@ class LoadPeople(unittest.TestCase):
 
 	def test_raises_error_on_non_existing_file(self):
 		test_load = self.dojo.load_people("load.txt")
-		self.assertEqual(test_load, "No such file exists")
+		self.assertEqual(test_load, "\nNo such file exists\n")
 
 	def test_raises_error_on_an_empty_file(self):
 		with open("load.txt", "w"):
 			test_load = self.dojo.load_people("load.txt")
-			self.assertEqual(test_load, "load.txt is empty!")
+			self.assertEqual(test_load, "\nload.txt is empty!\n")
 		os.remove("load.txt")
 
 	def test_loads_people_succesfully(self):
 		self.dojo.load_people("dummy.txt")
-		self.assertEqual(len(self.dojo.persons), 7)
-		self.assertTrue(self.dojo.persons[2].name == "Simon Patterson")
+		self.assertEqual(len(self.dojo.persons), 35)
+		self.assertTrue(self.dojo.persons[2].name == "Simon Peter")
 
 if __name__ == "__main__":
 	unittest.main()

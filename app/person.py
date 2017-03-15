@@ -1,12 +1,12 @@
 class Person:
 	"""An overall class for person"""
 
-	def __init__(self, name, office, accomodation=""):
+	def __init__(self, name, office, idno, accomodation=""):
 
 		self.name = name
 		self.accomodation = accomodation
 		self.office = office
-		self.idno = 0
+		self.idno = idno
 
 	def __repr__(self):
 		
