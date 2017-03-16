@@ -36,21 +36,13 @@ Options:
     -v --version
 """
 import os
-import sys
 import cmd
-import inspect
 
 from termcolor import cprint, colored
 from pyfiglet import figlet_format
 from docopt import docopt, DocoptExit
 
 from app import dojo, database
-
-currentdir = os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentframe())))
-parentdir = os.path.dirname(currentdir)
-sys.path.insert(0, parentdir)
-
-#database = Database()
 
 def docopt_cmd(func):
     """

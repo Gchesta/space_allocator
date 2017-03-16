@@ -1,14 +1,11 @@
 
 from os.path import isfile, getsize
+from random import choice
 
 from termcolor import cprint
 
 from .room import LivingSpace, Office
 from .person import Fellow, Staff
-
-from random import choice
-
-
 
 class Dojo:
     """
