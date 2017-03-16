@@ -54,7 +54,7 @@ class Dojo:
         try:
             check = [room for room in self.rooms if room.name == name][0]
         except IndexError:
-            check = "\nNo such room exists\n"
+            return "\nNo such room exists\n"
         return check
 
     def allocate_the_unallocated(self, category):
