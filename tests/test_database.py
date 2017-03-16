@@ -15,6 +15,12 @@ class TestSaveState(unittest.TestCase):
 		self.database = database
 		self.offices = ["Dede", "Didi", "Dodo", "Dudu", "Fafa", "Fefe"]
 		self.livingspaces = ["Bebe", "Bibi", "Bobo", "Bubu", "Caca", "Cefe"]
+		self.dojo.persons = []
+		self.dojo.rooms = []
+		self.engine = create_engine("sqlite:///dojo.db", echo = False)
+		Base.metadata.bind = self.engine
+		DBSession = sessionmaker(bind=self.engine)
+		self.session = DBSession()
 	
 	def test_save_state_creates_file_when_db_is_defined(self):
 		self.database.save_state("trial.db")
@@ -46,22 +52,14 @@ class TestSaveState(unittest.TestCase):
 	def test_save_state_saves_data_succesfully_with_undefined_db(self):
 		self.dojo.load_people("dummy.txt")
 		self.database.save_state()
-		engine = create_engine("sqlite:///dojo.db", echo = False)
-		Base.metadata.bind = engine
-		DBSession = sessionmaker(bind=engine)
-		session = DBSession()
-		dbrooms = session.query(RoomDB).all()
-		dbpersons = session.query(PersonDB).all()
+		dbrooms = self.session.query(RoomDB).all()
+		dbpersons = self.session.query(PersonDB).all()
 		self.assertEqual(len(dbpersons), 35)
-		self.assertEqual(len(dbrooms), 14)
+		self.assertEqual(len(dbrooms), 0)
 		#Assert that the objects keep their attributes even... 
 		#...when transferd to  the DB
 		self.assertEqual(dbpersons[17].name, "Skip Cheru")
-		self.assertEqual(dbrooms[1].name, "Baba")
-		dbpersons = session.query(PersonDB).all()
-		self.assertEqual(len(dbpersons), 35)
-		self.assertEqual(dbpersons[17].name, "Skip Cheru")
-
+	
 class LoadState(unittest.TestCase):
 
 	def setUp(self):
@@ -92,3 +90,4 @@ class LoadState(unittest.TestCase):
 		#Assert that rooms Fefe and Cece still have zero occupancy
 		self.assertFalse(self.dojo.rooms[12].occupants)
 		self.assertFalse(self.dojo.rooms[13].occupants)
+		
