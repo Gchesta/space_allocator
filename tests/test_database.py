@@ -1,4 +1,3 @@
-
 from os import remove
 from os.path import isfile
 
@@ -16,13 +15,13 @@ class TestSaveState(unittest.TestCase):
 		self.database = database
 		self.offices = ["Dede", "Didi", "Dodo", "Dudu", "Fafa", "Fefe"]
 		self.livingspaces = ["Bebe", "Bibi", "Bobo", "Bubu", "Caca", "Cefe"]
-		
-	def test_save_state_file_exists_defined_db(self):
+	
+	def test_save_state_creates_file_when_db_is_defined(self):
 		self.database.save_state("trial.db")
 		self.assertTrue(isfile("trial.db"))
 		remove("trial.db")
 
-	def test_save_state_succesfully_with_defined_db_2(self):
+	def test_save_state_saves_data_succesfully_with_defined_db(self):
 		#First, create two rooms with guaranteed allocations
 		self.dojo.create_room("Dada", "Office")
 		self.dojo.create_room("Baba", "livingspace")
@@ -33,6 +32,8 @@ class TestSaveState(unittest.TestCase):
 			self.dojo.create_room(office, "Office")
 		for livingspace in self.livingspaces:
 			self.dojo.create_room(livingspace, "livingspace")
+		"""test that the db is created with specified name"""
+		self.dojo.load_people("dummy.txt")
 		self.database.save_state("trial.db")
 		engine = create_engine("sqlite:///trial.db", echo = False)
 		Base.metadata.bind = engine
@@ -44,7 +45,7 @@ class TestSaveState(unittest.TestCase):
 		self.assertEqual(len(dbpersons), 35)
 		self.assertEqual(dbpersons[17].name, "Skip Cheru")
 
-	def test_save_state_succesfully_with_undefined_db(self):
+	def test_save_state_saves_data_succesfully_with_undefined_db(self):
 		self.dojo.load_people("dummy.txt")
 		self.database.save_state()
 		engine = create_engine("sqlite:///dojo.db", echo = False)
@@ -59,7 +60,10 @@ class TestSaveState(unittest.TestCase):
 		#when transferd to  the DB
 		self.assertEqual(dbpersons[17].name, "Skip Cheru")
 		self.assertEqual(dbrooms[1].name, "Baba")
-		
+		dbpersons = session.query(PersonDB).all()
+		self.assertEqual(len(dbpersons), 35)
+		self.assertEqual(dbpersons[17].name, "Skip Cheru")
+
 class LoadState(unittest.TestCase):
 
 	def setUp(self):
@@ -90,6 +94,3 @@ class LoadState(unittest.TestCase):
 		#Assert that rooms Fefe and Cece still have zero occupancy
 		self.assertFalse(self.dojo.rooms[12].occupants)
 		self.assertFalse(self.dojo.rooms[13].occupants)
-
-if __name__ == "__main__":
-	unittest.main()
