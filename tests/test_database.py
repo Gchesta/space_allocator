@@ -26,14 +26,12 @@ class TestSaveState(unittest.TestCase):
 		self.dojo.create_room("Dada", "Office")
 		self.dojo.create_room("Baba", "livingspace")
 		self.dojo.load_people("dummy.txt")
-		#create more rooms of which wil Fefe and Cece will be unallocated so
-		#that we test whether the function works for empty rooms
+		#create more rooms of which Fefe and Cece will be unallocated so...
+		#...that we can test whether the function works for empty rooms
 		for office in self.offices:
 			self.dojo.create_room(office, "Office")
 		for livingspace in self.livingspaces:
 			self.dojo.create_room(livingspace, "livingspace")
-		"""test that the db is created with specified name"""
-		self.dojo.load_people("dummy.txt")
 		self.database.save_state("trial.db")
 		engine = create_engine("sqlite:///trial.db", echo = False)
 		Base.metadata.bind = engine
@@ -56,8 +54,8 @@ class TestSaveState(unittest.TestCase):
 		dbpersons = session.query(PersonDB).all()
 		self.assertEqual(len(dbpersons), 35)
 		self.assertEqual(len(dbrooms), 14)
-		#Assert that the objects keep their attributes even 
-		#when transferd to  the DB
+		#Assert that the objects keep their attributes even... 
+		#...when transferd to  the DB
 		self.assertEqual(dbpersons[17].name, "Skip Cheru")
 		self.assertEqual(dbrooms[1].name, "Baba")
 		dbpersons = session.query(PersonDB).all()
@@ -85,8 +83,8 @@ class LoadState(unittest.TestCase):
 		self.assertEqual(no_of_persons2 - no_of_persons1, 35)
 		#Assert that objects retained their attributes
 		self.assertEqual(self.dojo.persons[8].category, "Staff")
-		#Assert that objects revert back to their instance before 
-		#save_state
+		#Assert that objects revert back to their instance before... 
+		#...save_state
 		self.assertIsInstance(self.dojo.persons[18], Staff)
 		self.assertIsInstance(self.dojo.persons[34], Fellow)
 		self.assertIsInstance(self.dojo.rooms[0], Office)
