@@ -5,7 +5,9 @@ from termcolor import cprint
 
 from .room import LivingSpace, Office
 from .person import Fellow, Staff
+
 from random import choice
+
 
 
 class Dojo:
@@ -122,13 +124,13 @@ class Dojo:
         
         office = "Pending"
         accomodation = "Pending" if accomodation == "Y" and category == "Fellow" else ""
+        idno = str(len(self.persons) + 1)
         
         if category == "Fellow":
-            person = Fellow(name, office, accomodation)
+            person = Fellow(name, office, idno, accomodation)
         else:
-            person = Staff(name, office)
+            person = Staff(name, office, idno)
         
-        person.idno = str(len(self.persons) + 1)
         self.persons.append(person)
         cprint("\n %s has been added to the Dojo as a %s" % (name, category), "green")
         self.allocate_office(person)
@@ -151,9 +153,9 @@ class Dojo:
             return "Invalid person category"
         
     def get_person_by_attribute(self, var, attr):
-        """This function receives two arguments the attribute(attr - eg "name") and the
+        """This function receives two argument the attribute(attr - eg "name") and the
         specific attribute of the person eg "George Bush" It returns the person object
-        It allows for flexibility since one can request with any valid unique attr such as 
+        It allows for flexibility since a one can request with any valid unique attr such as 
         idno"""
         try:
             person = [person for person in self.persons if getattr(person, attr) == var][0]
@@ -235,8 +237,6 @@ class Dojo:
         if person == "Invalid idno":
             cprint("\nID Does not exist\n", "magenta")
             return "\nID Does not exist\n"
-        
-        room = room.capitalize()
         new_allocation = self.check_if_room_exists(room)
         if new_allocation == "\nNo such room exists\n":
             cprint(new_allocation, "magenta")
@@ -244,20 +244,17 @@ class Dojo:
 
         if person.office == new_allocation or person.accomodation == new_allocation:
             msg = "You are trying to rellocate a person to a room he is occupying"
-            cprint("\n%s\n" % msg, "magenta")
+            print(msg)
             return msg
 
         person_category = person.category
         room_category = new_allocation.category
 
         if person_category == "Staff" and room_category == "Living Space":
-        	msg = "Invalid request. Staff do not have accomodation "
-        	cprint("\n%s\n" %msg, "magenta")
-        	return msg
+            return "Invalid request. Staff do not have accomodation "
         if not new_allocation.available_capacity:
-        	msg = "The requested room is full. Try another room"
-        	cprint("\n%s\n" %msg, "magenta")
-        	return msg
+            return "The requested room is full. Try another room"        
+        
         if room_category == "Office":
             current_allocation = person.office
             current_allocation.occupants.remove(person)
@@ -271,19 +268,23 @@ class Dojo:
             #if a person doesn't have an accomodation, we avoid an attributerror
             if current_allocation:
                 current_allocation.occupants.remove(person)
-        cprint("\nSuccessfully relocated %s to %s\n" %(str(person), room), "yellow")
+        print("Successfully relocated %s to %s" %(str(person), room))
     
     def load_people(self, filename):
         if not isfile(filename):
-            return "No such file exists"
+            msg = "\nNo such file exists\n"
+            cprint(msg, "magenta") 
+            return msg
         if getsize(filename) == 0:
-            return "%s is empty!" % filename
+            msg = "\n%s is empty!\n" % filename
+            cprint(msg, "magenta") 
+            return msg
         with open(filename, "r") as inputfile:
-            lines = [line.rstrip('\n') for line in inputfile]
+            lines = [line.strip() for line in inputfile]
         for line in lines:
             line_split = line.split()
             if len(line_split) < 3 or len(line_split) > 4:
-                cprint("\n'%s' is invalid\nPerson not added\n" % line, "magenta")
+                cprint("'\n%s' is invalid\nPerson not added\n" % line, "magenta")
             else:
                 self.format_load_input(line_split)
 
@@ -297,3 +298,4 @@ class Dojo:
             accomodation = "N"
         self.add_person(category, firstname, surname, accomodation)
 
+    

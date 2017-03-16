@@ -12,6 +12,8 @@ Usage:
     sophia print_allocations [<filename>]
     sophia rellocate_person <id> <room_name>
     sophia load_people <filename>
+    sophia save_state [<filename>]
+    sophia load_state <filename>
     sophia exit
     sophia (-i | --interactive)
     sophia (-h | --help)
@@ -36,13 +38,19 @@ Options:
 import os
 import sys
 import cmd
-import signal
+import inspect
 
 from termcolor import cprint, colored
 from pyfiglet import figlet_format
 from docopt import docopt, DocoptExit
 
-from app import dojorun
+from app import dojo, database
+
+currentdir = os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentframe())))
+parentdir = os.path.dirname(currentdir)
+sys.path.insert(0, parentdir)
+
+#database = Database()
 
 def docopt_cmd(func):
     """
@@ -90,7 +98,7 @@ class Start(cmd.Cmd):
         roomnames = args['<room_names>']
         roomtype = args['<type_of_room>']
         for roomname in roomnames:
-            dojorun.create_room(roomname, roomtype)
+            dojo.create_room(roomname, roomtype)
     
     @docopt_cmd
     def do_add_person(self, args):
@@ -99,43 +107,59 @@ class Start(cmd.Cmd):
         surname   = args['<surname>']
         category = "fellow" if args["fellow"] is True else "staff"
         accomodation = str(args["<wants_accomodation>"]).capitalize() if args["<wants_accomodation>"] else "N" 
-        dojorun.add_person(category, firstname, surname, accomodation)
+        dojo.add_person(category, firstname, surname, accomodation)
 
     @docopt_cmd
     def do_print_room(self, args):
         """usage: print_room <room_name>"""
         roomname = args['<room_name>']
-        dojorun.print_room(roomname)
+        dojo.print_room(roomname)
 
     @docopt_cmd
     def do_print_allocations(self, args):
         """usage: print_allocations [<filename>]"""
         filename = args["<filename>"] + ".txt" if args["<filename>"] else False
-        dojorun.print_allocations(filename)
+        dojo.print_allocations(filename)
 
     @docopt_cmd
     def do_print_unallocated(self, args):
         """usage: print_unallocated [<filename>]"""
         filename = args["<filename>"] + ".txt" if args["<filename>"] else False
-        dojorun.print_unallocated(filename)
+        dojo.print_unallocated(filename)
 
     @docopt_cmd
     def do_rellocate_person(self, args):
         """usage: rellocate_person <id> <room_name>"""
         idno = args['<id>']
         roomname = args["<room_name>"]
-        dojorun.rellocate_person(idno, roomname)
+        dojo.rellocate_person(idno, roomname)
 
     @docopt_cmd
     def do_load_people(self, args):
         """usage: load_people <filename>"""
         filename = args["<filename>"] + ".txt"
-        dojorun.load_people(filename)
+        dojo.load_people(filename)
 
+    @docopt_cmd
+    def do_save_state(self, args):
+        """usage: save_state [<filename>]"""
+        if args["<filename>"]:
+            filename = args["<filename>"] + ".db"
+            database.save_state(filename)
+        else:
+            database.save_state()
+
+    @docopt_cmd
+    def do_load_state(self, args):
+        """usage: load_state <filename>"""
+        filename = args["<filename>"] + ".db"
+        database.load_state(filename)
+
+    @docopt_cmd
     def do_exit(self, arg):
         """Usage: exit"""
         cprint ("\nSophia says bye...\n", "yellow")
-        sys.exit()
+        raise SystemExit(0)
 
 if __name__ == '__main__':
     prompt = Start()
