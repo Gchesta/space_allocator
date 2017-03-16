@@ -7,7 +7,7 @@ from termcolor import cprint
 
 from .room import LivingSpace, Office
 from .person import Fellow, Staff
-from space_allocator.app import dojo
+from app import dojo
 from .tables import RoomDB, PersonDB, Base
 
 class Database:
