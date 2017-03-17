@@ -6,7 +6,7 @@ from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 
 from space_allocator.app import (dojo, database, Staff, Fellow,
-	LivingSpace, Office, Base, RoomDB, PersonDB)
+	LivingSpace, Office, RoomDB, PersonDB)
 
 class TestSaveState(unittest.TestCase):
 
@@ -17,10 +17,7 @@ class TestSaveState(unittest.TestCase):
 		self.livingspaces = ["Bebe", "Bibi", "Bobo", "Bubu", "Caca", "Cefe"]
 		self.dojo.persons = []
 		self.dojo.rooms = []
-		self.engine = create_engine("sqlite:///dojo.db", echo = False)
-		Base.metadata.bind = self.engine
-		DBSession = sessionmaker(bind=self.engine)
-		self.session = DBSession()
+		
 	
 	def test_save_state_creates_file_when_db_is_defined(self):
 		self.database.save_state("trial.db")
@@ -40,7 +37,6 @@ class TestSaveState(unittest.TestCase):
 			self.dojo.create_room(livingspace, "livingspace")
 		self.database.save_state("trial.db")
 		engine = create_engine("sqlite:///trial.db", echo = False)
-		Base.metadata.bind = engine
 		DBSession = sessionmaker(bind=engine)
 		session = DBSession()
 		dbrooms = session.query(RoomDB).all()
@@ -52,6 +48,9 @@ class TestSaveState(unittest.TestCase):
 	def test_save_state_saves_data_succesfully_with_undefined_db(self):
 		self.dojo.load_people("dummy.txt")
 		self.database.save_state()
+		self.engine = create_engine("sqlite:///dojo.db", echo = False)
+		DBSession = sessionmaker(bind=self.engine)
+		self.session = DBSession()
 		dbrooms = self.session.query(RoomDB).all()
 		dbpersons = self.session.query(PersonDB).all()
 		self.assertEqual(len(dbpersons), 35)
