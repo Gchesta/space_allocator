@@ -7,7 +7,7 @@ from termcolor import cprint
 
 from .room import LivingSpace, Office
 from .person import Fellow, Staff
-from app import dojo
+from . import dojo
 from .tables import RoomDB, PersonDB, Base
 
 class Database:
@@ -72,7 +72,7 @@ class Database:
 					self.dojo.rooms.append(office_to_load)
 					dbrooms.remove(db_office)
 				except IndexError:
-					already_loaded_office = [room for room in dojo.rooms if room.name == office][0]
+					already_loaded_office = [room for room in self.dojo.rooms if room.name == office][0]
 					person_to_load.office = already_loaded_office
 					already_loaded_office.occupants.append(person_to_load)
 
@@ -86,7 +86,7 @@ class Database:
 					self.dojo.rooms.append(livingspace_to_load)
 					dbrooms.remove(db_livingspace)
 				except IndexError:
-					already_loaded_livingspace = [room for room in dojo.rooms if room.name == accomodation][0]
+					already_loaded_livingspace = [room for room in self.dojo.rooms if room.name == accomodation][0]
 					person_to_load.accomodation = already_loaded_livingspace
 					already_loaded_livingspace.occupants.append(person_to_load)
 			self.dojo.persons.append(person_to_load)
