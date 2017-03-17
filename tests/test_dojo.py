@@ -140,11 +140,23 @@ class TestPrintFunctions(unittest.TestCase):
 		expected_output = heading + "\x1b[0m\nErnest Achesa \t\tFELLOW\nGeorge Wanjala \t\tSTAFF\n"
 		self.assertEqual(output, expected_output)
 
+	def test_print_error_message_non_existent_room(self):
+		#setup mock data
+		self.dojo.create_room("Nairobi", "Office")
+		stored_standard_output = sys.stdout
+		string_with_print_content = StringIO()
+		sys.stdout = string_with_print_content
+		self.dojo.print_room("Mombasa")
+		sys.stdout = stored_standard_output
+		output = string_with_print_content.getvalue()
+		expected_output = "\x1b[35m\nNo such room exists\n\x1b[0m\n"
+		self.assertEqual(output, expected_output)
+
 	def test_print_allocations_on_screen(self):
 		#setup mock data		
 		self.dojo.create_room("Nairobi", "Office")
 		self.dojo.create_room("Chetambe", "livingspace")
-		self.dojo.add_person("staff", "george", "wanjala", "Y")
+		self.dojo.add_person("fellow", "george", "wanjala", "Y")
 		#string_with_print_content will hold the output being printed
 		stored_standard_output = sys.stdout
 		string_with_print_content = StringIO()
@@ -158,9 +170,11 @@ class TestPrintFunctions(unittest.TestCase):
 		#escaped characters such as x1b[33m refer to the color
 		heading_1 = "\x1b[33m\nALLOCATIONS - OFFICES\n"
 		heading_2 = "\nROOM NAME \t\tROLE\x1b[0m\n\nNAIROBI\n"  + "=" * 30
-		Office_occupants = "\nGeorge Wanjala \t\tSTAFF\n\n"
-		heading_3 = "\x1b[33m\nALLOCATIONS - LIVING SPACES\n\nROOM NAME \t\tROLE\x1b[0m\n\n"
-		expected_output = heading_1 + heading_2 + Office_occupants + heading_3
+		Office_occupants = "\nGeorge Wanjala \t\tFELLOW\n\n"
+		heading_3 = "\x1b[33m\nALLOCATIONS - LIVING SPACES\n"
+		heading_4 = "\nROOM NAME \t\tROLE\x1b[0m\n\nCHETAMBE\n"  + "=" * 30
+		livingspace_occupants = "\nGeorge Wanjala \t\tFELLOW\n\n"
+		expected_output = heading_1 + heading_2 + Office_occupants + heading_3 + heading_4 + livingspace_occupants
 		self.assertEqual(output, expected_output)
 
 	def  test_print_allocations_with_output_file(self):
@@ -275,18 +289,18 @@ class LoadPeople(unittest.TestCase):
 
 	def test_raises_error_on_non_existing_file(self):
 		test_load = self.dojo.load_people("load.txt")
-		self.assertEqual(test_load, "No such file exists")
+		self.assertEqual(test_load, "\nNo such file exists\n")
 
 	def test_raises_error_on_an_empty_file(self):
 		with open("load.txt", "w"):
 			test_load = self.dojo.load_people("load.txt")
-			self.assertEqual(test_load, "load.txt is empty!")
+			self.assertEqual(test_load, "\nload.txt is empty!\n")
 		os.remove("load.txt")
 
 	def test_loads_people_succesfully(self):
 		self.dojo.load_people("dummy.txt")
-		self.assertEqual(len(self.dojo.persons), 7)
-		self.assertTrue(self.dojo.persons[2].name == "Simon Patterson")
+		self.assertEqual(len(self.dojo.persons), 35)
+		self.assertTrue(self.dojo.persons[2].name == "Simon Peter")
 
 if __name__ == "__main__":
 	unittest.main()
