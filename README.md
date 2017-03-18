@@ -3,7 +3,7 @@
 
 """
 Welcome to Sophia.
-Andela's one and only space allocator
+Andela's one and only space allocator. Sophia helps you to allocate rooms to staff and fellows alike
 
 Usage:
 
